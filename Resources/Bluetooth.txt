@@ -1,0 +1,26 @@
+//Interacting with Arduino:
+//   LED strobing example
+public class Loops
+{
+public static void main (String[] args)
+{
+while (true)
+{
+//Red::
+for (int red_brightness = 0; red_brightness < 255; red_brightness += 10)
+{
+IterateArduino(new Color(red_brightness,0,0));
+}
+//Green::
+for (int green_brightness = 0; green_brightness < 255; green_brightness += 10)
+{
+IterateArduino(new Color(0,green_brightness,0));
+}
+//Blue::
+for (int blue_brightness = 0; blue_brightness < 255; blue_brightness += 10)
+{
+IterateArduino(new Color(0,0,blue_brightness));
+}
+}
+}
+}

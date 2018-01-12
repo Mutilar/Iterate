@@ -1,0 +1,31 @@
+//The logic to programming:
+//   Making decisions based on boolean evaluations
+public class Conditions
+{
+public static void main (String[] args)
+{
+//Starting simple:
+if (1 == 1)
+{
+System.out.println("1_equals_1");
+}
+else
+{
+System.out.println("1_doesn't_equal_1");
+}
+//There are many boolean evaluations (==, <, >, <=, >=, !=)
+int value = 100;
+if (value > 200)
+{
+System.out.println("Value>200");
+}
+else
+{
+//You can "nest" if statements inside one another as well!
+if (value > 50)
+{
+System.out.println("50<Value<=200");
+}
+}
+}
+}
