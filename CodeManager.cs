@@ -75,7 +75,7 @@ public class CodeManager : MonoBehaviour
 
     string[] list_of_PDTs = { "boolean", "char", "double", "int", "String" };
     string[] list_of_evaluations = { "==", ">", "<", "<=", ">=", "!=" };
-    string[] list_of_operations = { " + ", " - ", " * ", " / ", " % "};
+    //string[] list_of_operations = { " + ", " - ", " * ", " / ", " % "};
     string[] list_of_condensed_operations = { "=", "++", "--", "+=", "-=", "*=", "/=", "%=" };
     public List<VariableObject<bool>> booleans = new List<VariableObject<bool>>();
     public List<VariableObject<int>> integers = new List<VariableObject<int>>();
@@ -621,8 +621,8 @@ public class CodeManager : MonoBehaviour
         }
         if (editting_line_type.Contains("If"))
         {
-            if (editting_line_type == "IfLeftSide") Editor_setOptions(new string[] { "Operator", "Comparison" });
-            else Editor_setOptions(new string[] { "Operator", "Finish" });
+            if (editting_line_type == "IfLeftSide") Editor_setOptions(new string[] { "Comparison" });
+            else Editor_setOptions(new string[] { "Finish" });
 
             lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
 
@@ -632,13 +632,13 @@ public class CodeManager : MonoBehaviour
             if (editting_line_type.IndexOf("ForModify") == 0)
             {
                 lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
-                Editor_setOptions(new string[] { "Operator", "Finish" });
+                Editor_setOptions(new string[] { "Finish" });
 
             }
             else if (editting_line_type.Contains("For"))
             {
                 lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
-                Editor_setOptions(new string[] { "Operator", "Modifier" });
+                Editor_setOptions(new string[] { "Modifier" });
             }
             else
             {
@@ -647,7 +647,7 @@ public class CodeManager : MonoBehaviour
                     lines[editting_line + 1] += input;
                 }
                 else lines[editting_line + 1] += input;
-                Editor_setOptions(new string[] { "Operator", "Finish" });
+                Editor_setOptions(new string[] { "Finish" });
             }
         }
 
@@ -656,7 +656,7 @@ public class CodeManager : MonoBehaviour
             lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
             editting_line_type = "ForSetVariableModify" + editting_variable_type;
 
-            Editor_setOptions(new string[] { "Operator", "Comparison" });
+            Editor_setOptions(new string[] { "Comparison" });
 
         }
 
@@ -762,7 +762,7 @@ public class CodeManager : MonoBehaviour
                 if (available_variable_types.Length > 0) Editor_setOptions(available_variable_types);
                 else
                 {
-                    UI_setColor(UIElement_EdittingMenu.transform.GetChild(3).gameObject, new Color(1, 0, 0)); 
+                    UI_setColor(UIElement_EdittingMenu.transform.GetChild(1).gameObject, new Color(1, 0, 0)); 
                     print("no variables");
                 }
                 break;
@@ -875,10 +875,10 @@ public class CodeManager : MonoBehaviour
                 Editor_setOptions(new string[] { "Integer", "Double" });
                 lines[editting_line + 1] = "for ()";
                 break;
-            case "Operator":
-                if (editting_variable_type == "String") Editor_setOptions(new string[] { " + " });
-                else Editor_setOptions(list_of_operations);
-                break;
+            //case "Operator":
+            //    if (editting_variable_type == "String") Editor_setOptions(new string[] { " + " });
+            //    else Editor_setOptions(list_of_operations);
+            //    break;
             case "Comparison":
                 if (editting_variable_type == "Boolean" || editting_variable_type == "String") Editor_setOptions(new string[] { "==", "!=" });
                 else if (editting_line_type.Contains("ForSet"))
@@ -945,30 +945,6 @@ public class CodeManager : MonoBehaviour
             if (selection == strings_within_editting_scope[i])
             {
                 Editor_usedAVariable(selection);
-            }
-        }
-
-        for (int i = 0; i < list_of_operations.Length; i++)
-        {
-            if (selection == list_of_operations[i])
-            {
-                if (editting_line_type == "IfLeftSide" || editting_line_type == "IfRightSide" || editting_line_type == "Print" || editting_line_type.Contains("For"))
-                {
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
-
-                    Editor_setOptions(new string[] { "Variable", "Method", "String Literal", "Number" });
-
-                    if (editting_line_type.Contains("Modify"))
-                    {
-                        Editor_findPossibleValuesForVariables();
-                    }
-
-                }
-                else if (editting_line_type.Contains("Modify"))
-                {
-                    lines[editting_line + 1] += list_of_operations[i];
-                    Editor_findPossibleValuesForVariables();
-                }
             }
         }
         for (int i = 0; i < list_of_evaluations.Length; i++)
@@ -1087,19 +1063,19 @@ public class CodeManager : MonoBehaviour
             lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
             print(editting_variable_type);
             if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Comparison" });
-            else Editor_setOptions(new string[] { "Operator", "Comparison" });
+            else Editor_setOptions(new string[] { "Comparison" });
         }
         if (editting_line_type == "IfRightSide")
         {
             lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
             if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Finish" });
-            else Editor_setOptions(new string[] { "Operator", "Finish" });
+            else Editor_setOptions(new string[] { "Finish" });
         }
         if (editting_line_type == "Print")
         {
             lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
             if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Finish" });
-            else Editor_setOptions(new string[] { "Operator", "Finish" });
+            else Editor_setOptions(new string[] {"Finish" });
         }
         if (editting_line_type.Contains("Modify"))
         {
@@ -1108,13 +1084,13 @@ public class CodeManager : MonoBehaviour
                 if (editting_line_type.Contains("For"))
                 {
                     lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
-                    Editor_setOptions(new string[] { "Operator", "Comparison" });
+                    Editor_setOptions(new string[] { "Comparison" });
                 }
                 else
                 {
                     lines[editting_line + 1] += selection;
                     if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Finish" });
-                    else Editor_setOptions(new string[] { "Operator", "Finish" });
+                    else Editor_setOptions(new string[] { "Finish" });
                 }
             }
             //this one is below cuz it would otherwise trigger both loops ;)
@@ -1588,7 +1564,6 @@ public class CodeManager : MonoBehaviour
     bool Compiler_booleanEvaluation(string left_side_of_statement, string right_side_of_statement, string comparision)
     {
         bool output_bool = false;
-        char output_char = ' ';
         double output_double = 0.0;
         if (bool.TryParse(left_side_of_statement, out output_bool) && bool.TryParse(right_side_of_statement, out output_bool))
         {
@@ -1619,32 +1594,6 @@ public class CodeManager : MonoBehaviour
                     return (double.Parse(left_side_of_statement) <= double.Parse(right_side_of_statement));
             }
         }
-        /*
-        else if (int.TryParse("3", out output_int) && int.TryParse("3", out output_int))
-        {
-            print("int");
-            switch (comparision)
-            {
-                case "==":
-                    output_of_if = (int.Parse(left_side_of_statement) == int.Parse(right_side_of_statement));
-                    break;
-                case "!=":
-                    output_of_if = (int.Parse(left_side_of_statement) != int.Parse(right_side_of_statement));
-                    break;
-                case ">":
-                    output_of_if = (int.Parse(left_side_of_statement) > int.Parse(right_side_of_statement));
-                    break;
-                case "<":
-                    output_of_if = (int.Parse(left_side_of_statement) < int.Parse(right_side_of_statement));
-                    break;
-                case ">=":
-                    output_of_if = (int.Parse(left_side_of_statement) >= int.Parse(right_side_of_statement));
-                    break;
-                case "<=":
-                    output_of_if = (int.Parse(left_side_of_statement) <= int.Parse(right_side_of_statement));
-                    break;
-            }
-        }*/
         else
         {
             switch (comparision)
@@ -1789,7 +1738,6 @@ public class CodeManager : MonoBehaviour
         booleans = new List<VariableObject<bool>>();
         integers = new List<VariableObject<int>>();
         doubles = new List<VariableObject<double>>();
-       // characters = new List<VariableObject<char>>();
         strings = new List<VariableObject<string>>();
 
         for (int i = 0; i < this.transform.childCount; i++)
@@ -1892,12 +1840,7 @@ public class CodeManager : MonoBehaviour
         }
         if (line.IndexOf("Iterate(") == 0)
         {
-            //Iterate(Phone.Vibrate);
-            if (line.Contains("Vibrate"))
-            {
-               
-            }
-            else if (line.Contains("Position"))
+            if (line.Contains("Position"))
             {
 
                 string type = Parser_splitStringBetween(line, "(", ",");
