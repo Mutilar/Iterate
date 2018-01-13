@@ -51,7 +51,6 @@ public class MainMenu_CodeManager : MonoBehaviour {
 
     public void NewClass()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         if (!on_settings)
         {
             LevelManager.level = "NewClass";
@@ -60,7 +59,6 @@ public class MainMenu_CodeManager : MonoBehaviour {
     }
     public void LoadClass()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         GameObject.Find("Title").transform.GetChild(0).gameObject.GetComponent<Text>().text = "Load();";
         for (int i = 0; i < load_buttons.Length; i++)
         {
@@ -73,7 +71,6 @@ public class MainMenu_CodeManager : MonoBehaviour {
     }
     public void LoadReturn()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         GameObject.Find("Title").transform.GetChild(0).gameObject.GetComponent<Text>().text = "Iterate();";
         for (int i = 0; i < load_buttons.Length; i++)
         {
@@ -90,13 +87,11 @@ public class MainMenu_CodeManager : MonoBehaviour {
     }
     public void LoadClass(string input)
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         LevelManager.level = input;
         SceneManager.LoadScene("Coding");
     }
     public void Settings()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         GameObject.Find("Title").transform.GetChild(0).gameObject.GetComponent<Text>().text = "Settings();";
         for (int i = 0; i < settings_buttons.Length; i++)
         {
@@ -109,7 +104,6 @@ public class MainMenu_CodeManager : MonoBehaviour {
     }
     public void FontSize()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         string switcher = LevelManager.font_size;
         LevelManager.font_size = LevelManager.opposite_font_size;
         LevelManager.opposite_font_size = switcher;
@@ -117,13 +111,11 @@ public class MainMenu_CodeManager : MonoBehaviour {
     }
     public void Vibrating()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         LevelManager.vibrating = !LevelManager.vibrating;
         settings_buttons[1].transform.GetChild(0).gameObject.GetComponent<Text>().text = "ToggleVibrations(" + !LevelManager.vibrating + ");";
     }
     public void GetInfo()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         info_open = true;
         info.SetActive(true);
         GameObject.Find("Title").transform.GetChild(0).gameObject.GetComponent<Text>().text = "GetInfo();";
@@ -134,7 +126,6 @@ public class MainMenu_CodeManager : MonoBehaviour {
     }
     public void SettingsReturn()
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         GameObject.Find("Title").transform.GetChild(0).gameObject.GetComponent<Text>().text = "Iterate();";
         for (int i = 0; i < settings_buttons.Length; i++)
         {
@@ -157,7 +148,6 @@ public class MainMenu_CodeManager : MonoBehaviour {
             {
                 buttons[i].gameObject.SetActive(true);
             }
-            if (LevelManager.vibrating) Vibration.Vibrate(10);
             GameObject.Find("Title").transform.GetChild(0).gameObject.GetComponent<Text>().text = "Iterate();";
         }
         if (false)
@@ -203,7 +193,6 @@ public class MainMenu_CodeManager : MonoBehaviour {
     }
     void UI_clickOn(int option)
     {
-        if (LevelManager.vibrating) Vibration.Vibrate(10);
         switch (option)
         {
             case 0:

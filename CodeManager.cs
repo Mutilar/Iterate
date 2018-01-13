@@ -16,7 +16,7 @@ public class CodeManager : MonoBehaviour
         Editting:
         Brian: Clean up editor mode, add pretty lines/animations
     ***/
-    public TerminalController bluetooth_module;
+
     Vector2 old_position;
     bool not_over_UI;
     float tap_duration = 0;
@@ -100,10 +100,6 @@ public class CodeManager : MonoBehaviour
         /* LOAD CLASS FROM MAIN MENU */
         lines = new List<string>();
         Display_LoadScript(LevelManager.level);
-        /* PAIR BLUETOOTH */
-        bool has_bluetooth = false;
-        for (int i = 0; i < lines.Count; i++) if (lines[i].Contains("Arduino")) has_bluetooth = true;
-        if (has_bluetooth) Misc_PairBluetooth();
         /* INITIALIZE INTERPRETER */
         Interpreter_Object = new Interpreter();
         Interpreter_Object.addLines(lines);
@@ -131,11 +127,10 @@ public class CodeManager : MonoBehaviour
                     UI_setColor(UIElement_CompilationMenu, new Color(1, 0, 0));
                     UI_setColor(UIElement_CompilationMenu.transform.GetChild(1).gameObject, new Color(1, 0, 0));
                     Compiler_compilation();
-                    if (LevelManager.vibrating) Vibration.Vibrate(10);
                 }
             }
             /*Editting Locker*/
-            if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_EdittingLocker.transform.position)) { not_over_UI = false; UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0)); Editor_toggleLock(); if (LevelManager.vibrating) Vibration.Vibrate(10); }
+            if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_EdittingLocker.transform.position)) { not_over_UI = false; UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0)); Editor_toggleLock(); }
             /*Options Menu*/
             if (UI_clickCheck(0, 1000, 0, 200, old_position, UIElement_OptionsMenu.transform.position))
             { not_over_UI = false;
@@ -144,7 +139,6 @@ public class CodeManager : MonoBehaviour
                     UI_setColor(UIElement_OptionsMenu, new Color(1, 0, 0));
                     UI_setColor(UIElement_OptionsMenu.transform.GetChild(0).gameObject, new Color(1, 0, 0));
                     Display_OptionsMenu();
-                    if (LevelManager.vibrating) Vibration.Vibrate(10);
                 }
             }
             if (editting_mode)
@@ -161,7 +155,6 @@ public class CodeManager : MonoBehaviour
                             //Display_pushText(lines, new int[0]);
                             //resize main thingy
                             print(lines[editting_line + 1]);
-                            if (LevelManager.vibrating) Vibration.Vibrate(10);
                             break;
                         }
                     }
@@ -268,7 +261,6 @@ public class CodeManager : MonoBehaviour
                                 line ++;
                             }
                             Editor_start(line);
-                            if (LevelManager.vibrating) Vibration.Vibrate(10);
                         }
                     }
                 }
@@ -292,7 +284,6 @@ public class CodeManager : MonoBehaviour
                             //UIElement_EdittingMenu.SetActive(true);
                             Editor_setOptions(new string[] { "Enter the class's name:" });
                             editting_line_type = "SetClassName";
-                            if (LevelManager.vibrating) Vibration.Vibrate(10);
                         }
                     }
                     int line_of_main_method = 0;
@@ -335,8 +326,6 @@ public class CodeManager : MonoBehaviour
                             {
                                 lines.RemoveAt(line);
                             }
-                         //   Display_pushText(lines, new int[0]);
-                            if (LevelManager.vibrating) Vibration.Vibrate(10);
                         }
                     }
 
@@ -1912,7 +1901,7 @@ public class CodeManager : MonoBehaviour
             //Iterate(Phone.Vibrate);
             if (line.Contains("Vibrate"))
             {
-                if (LevelManager.vibrating) Vibration.Vibrate(10);
+               
             }
             else if (line.Contains("Position"))
             {
@@ -1943,20 +1932,6 @@ public class CodeManager : MonoBehaviour
             for (int i = 0; i < this.transform.childCount; i++)
             {
                 Destroy(this.transform.GetChild(i).gameObject);
-            }
-        }
-        if (line.IndexOf("IterateArduino(new Color(") == 0)
-        {//lines.Add("IterateArduino(new Color(1,1,1));");
-
-            string message = Parser_splitStringBetween(line, "(new Color(", ")");//1,1,1
-            string[] values = message.Split(',');
-            for (int i = 0; i < values.Length; i++)
-            {
-                int val = int.Parse(Compiler_evaluateExpression(values[i]));
-                if (val > 255) val = 255;
-                if (val < 0) val = 0;
-                bluetooth_module.message = byte.Parse(val.ToString());
-                bluetooth_module.send();
             }
         }
     }
@@ -2010,7 +1985,6 @@ public class CodeManager : MonoBehaviour
                 has_bluetooth = true;
             }             
         }
-        if (has_bluetooth) Misc_PairBluetooth();
         Compiler_reset();
 
 
@@ -2029,12 +2003,5 @@ public class CodeManager : MonoBehaviour
     {
         SceneManager.LoadScene("Menu");
     }  
-    public void Misc_PairBluetooth()
-    {
-        if (bluetooth_module.device == null)
-        {
-            bluetooth_module.showDevices();
-        }
-    }
 
 }
