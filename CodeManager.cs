@@ -796,11 +796,7 @@ public class CodeManager : MonoBehaviour
                 break;
             case "Iterate();":
                 lines[editting_line + 1] = selection;
-                Editor_setOptions(new string[] { "Iterate(Phone.Vibrate);" });
-                break;
-            case "Iterate(Phone.Vibrate);":
-                lines[editting_line + 1] = selection;
-                Editor_setOptions(new string[] { "Finish" });
+              //  Editor_setOptions(new string[] { "Iterate(Phone.Vibrate);" });
                 break;
             case "ClearIterations();":
                 lines[editting_line + 1] = selection;
@@ -818,7 +814,7 @@ public class CodeManager : MonoBehaviour
                 {
                     lines[editting_line + 1] += "Math.random()";
                 }
-                Editor_setOptions(new string[] { "Operator", "Finish" });
+                Editor_setOptions(new string[] { "Finish" });
                 break;
             case "Number":
                 Editor_setOptions(new string[] { "Enter a number:" });
@@ -896,12 +892,12 @@ public class CodeManager : MonoBehaviour
             case "Print":
                 editting_line_type = "Print";
                 lines[editting_line + 1] = "System.out.print()";
-                Editor_setOptions(new string[] { "Variable", "Method", "String Literal", "Number" });
+                Editor_setOptions(new string[] { "Variable", "String Literal", "Number" });
                 break;
             case "Print Line":
                 editting_line_type = "Print";
                 lines[editting_line + 1] = "System.out.println()";
-                Editor_setOptions(new string[] { "Variable", "Method", "String Literal", "Number" });
+                Editor_setOptions(new string[] { "Variable", "String Literal", "Number" });
                 break;
             case "Modifier":
                 lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "; )";
@@ -958,8 +954,6 @@ public class CodeManager : MonoBehaviour
             {
                 if (editting_line_type == "IfLeftSide" || editting_line_type == "IfRightSide" || editting_line_type == "Print" || editting_line_type.Contains("For"))
                 {
-                    //if (editting_line_type == "Print") lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
-                    //else 
                     lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
 
                     Editor_setOptions(new string[] { "Variable", "Method", "String Literal", "Number" });
@@ -1031,7 +1025,7 @@ public class CodeManager : MonoBehaviour
                         Editor_setOptions(new string[] { "Finish" });
                     }
                     else
-                    {
+                    {   
                         lines[editting_line + 1] += " " + selection + " ";
                         Editor_findPossibleValuesForVariables();
                     }
@@ -1976,14 +1970,9 @@ public class CodeManager : MonoBehaviour
         string[] lines = textFile.text.Split('\n');
  
         this.lines = new List<string>();
-        bool has_bluetooth = false;
         for (int i = 0; i < lines.Length; i++)
         {
-            this.lines.Add(lines[i]);   
-            if (lines[i].Contains("Arduino"))
-            {
-                has_bluetooth = true;
-            }             
+            this.lines.Add(lines[i]);             
         }
         Compiler_reset();
 
