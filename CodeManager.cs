@@ -61,6 +61,11 @@ public class CodeManager : MonoBehaviour
 
     public GameObject UIElement_InputField;
 
+    /**
+     * 
+     * Calculate these in real time: check every line above current for variable declaration, skipping } and every line until a { + 1
+     * 
+     * */
     public List<string> integers_within_editting_scope = new List<string>();
     public List<string> doubles_within_editting_scope = new List<string>();
     public List<string> booleans_within_editting_scope = new List<string>();
@@ -73,14 +78,6 @@ public class CodeManager : MonoBehaviour
     string[] list_of_evaluations = { "==", ">", "<", "<=", ">=", "!=" };
     //string[] list_of_operations = { " + ", " - ", " * ", " / ", " % "};
     string[] list_of_condensed_operations = { "=", "++", "--", "+=", "-=", "*=", "/=", "%=" };
-    //public List<VariableObject<bool>> booleans = new List<VariableObject<bool>>();
-    //public List<VariableObject<int>> integers = new List<VariableObject<int>>();
-    //public List<VariableObject<double>> doubles = new List<VariableObject<double>>();
-    /*public List<VariableObject<char>> characters = new List<VariableObject<char>>();*/
-   // public List<VariableObject<string>> strings = new List<VariableObject<string>>();
-
-    bool compiling = false;
-    int current_line = -1; //points to current line of List<string> lines is being read
     
     bool next_else = false; //Used for if/else logic
     string loop_condition;
@@ -155,7 +152,7 @@ public class CodeManager : MonoBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            if (tapping_over_same_line == true && allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen && !compiling)
+            if (tapping_over_same_line == true && allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen)
             {
                 int line = (int)((Screen.height - Input.mousePosition.y + Display_Text.GetComponent<RectTransform>().anchoredPosition.y) / text_height);
 
@@ -230,7 +227,7 @@ public class CodeManager : MonoBehaviour
             if (tap_duration < .25f && tapping_over_same_line)
             {
                 //short tap
-                if (allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen && !compiling)
+                if (allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen)
                 {
                     int line = (int)((Screen.height - Input.mousePosition.y + Display_Text.GetComponent<RectTransform>().anchoredPosition.y) / text_height + 1);
                     int line_of_main_method = 0;
@@ -259,7 +256,7 @@ public class CodeManager : MonoBehaviour
             }
             if (tap_duration > .25f && tapping_over_same_line)
             {
-                if (allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen && !compiling)
+                if (allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen)
                 {
                     int line = (int)((Screen.height - Input.mousePosition.y + Display_Text.GetComponent<RectTransform>().anchoredPosition.y) / text_height);
                     print(lines[line]);
@@ -325,50 +322,22 @@ public class CodeManager : MonoBehaviour
             tap_duration = 0;
         }
 
-        if (compiling)
+      
         {
-            UIElement_CompilationMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/Pause") as GameObject).GetComponent<SpriteRenderer>().sprite;
-            UIElement_CompilationMenu.transform.GetChild(0).gameObject.SetActive(true);
-            UIElement_CompilationMenu.transform.GetChild(1).gameObject.SetActive(true);
-            UI_setTowardsRectTransform(UIElement_CompilationMenu, -800, 25);
-            //Console stuff
-            Output_text.text = Console_output;
-            int height_of_console = Output_text.text.Split('\n').Length-1;
-            if (Debug_text.text.Split('\n').Length - 1 > height_of_console) height_of_console = Debug_text.text.Split('\n').Length - 1;
-            GameObject.Find("UIElement_Console").GetComponent<RectTransform>().anchoredPosition = new Vector2(GameObject.Find("UIElement_Console").GetComponent<RectTransform>().anchoredPosition.x, height_of_console * 38f - 20);
-            //Compiling timer
-            time_delayer += Time.deltaTime;
-            if (current_line == -1) current_line++;
-            if (time_delayer >= Mathf.Pow(UIElement_CompilationSpeed.value*2, 2) && current_line < lines.Count)
-            {
-                while (lines[current_line].Contains("//"))
-                {
-                    current_line++;
-                }
-               // Display_pushText(lines, new int[1] { current_line });\
-
-                Display_pushText();
-
-                current_line++;
-                time_delayer = 0;
-            }
-        }
-        else
-        {
-            UIElement_CompilationMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/Start") as GameObject).GetComponent<SpriteRenderer>().sprite;
+            //UIElement_CompilationMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/Start") as GameObject).GetComponent<SpriteRenderer>().sprite;
             UIElement_CompilationMenu.transform.GetChild(0).gameObject.SetActive(false);
             UIElement_CompilationMenu.transform.GetChild(1).gameObject.SetActive(false);
             UI_setTowardsRectTransform(UIElement_CompilationMenu, 0, 25);
         }
         if (UI_optionsMenuOpen)
         {
-            UIElement_OptionsMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/SettingsOpen") as GameObject).GetComponent<SpriteRenderer>().sprite;
+            //UIElement_OptionsMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/SettingsOpen") as GameObject).GetComponent<SpriteRenderer>().sprite;
             UIElement_OptionsMenu.transform.GetChild(0).gameObject.SetActive(true);
             UI_setTowardsRectTransform(UIElement_OptionsMenu, -800, -25);
         }
         else
         {
-            UIElement_OptionsMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/SettingsClose") as GameObject).GetComponent<SpriteRenderer>().sprite;
+            //UIElement_OptionsMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/SettingsClose") as GameObject).GetComponent<SpriteRenderer>().sprite;
             UIElement_OptionsMenu.transform.GetChild(0).gameObject.SetActive(false);
             UI_setTowardsRectTransform(UIElement_OptionsMenu, 0, -25);
         }
@@ -1123,18 +1092,6 @@ public class CodeManager : MonoBehaviour
        // Display_Text.GetComponent<TextMeshProUGUI>().text = Interpreter_Object.ToString();
     }
 
-    public void Display_pushConsoleText(string text)
-    {
-        Console_output += text;
-        if (Console_output.Split('\n').Length >= 8)
-        {
-            Console_output = Console_output.Substring(Console_output.IndexOf('\n') + 1);
-            Console_output = Console_output.Substring(Console_output.IndexOf('\n') + 1);
-            Console_output = Console_output.Substring(Console_output.IndexOf('\n') + 1);
-            Console_output = "Console:\n...\n" + Console_output;
-        }
-    }
-    
     /* Display UI */
     public void Display_OptionsMenu()
     {
