@@ -413,7 +413,28 @@ public class CodeManager : MonoBehaviour
         //UI_setRectTransform(Display_Text.gameObject,0, (line + 1) * text_height - 511);
         editting_line_type = "";
         Editor_findVariablesWithinScope(line);
-        //old:: Editor_setOptions(new string[] { "Keyword", "Method", "Variable" });
+
+        /*  Variable
+         *      -Create new variable
+         *          Types
+         *      -Modify existing variable [only if exists in scope]
+         *  Flow Control
+         *      -If
+         *      -Else [only if immediately after an if block]
+         *      -Switch
+         *      -While
+         *      -For
+         *  Method
+         *      -Serial
+         *          Begin, Println, Print
+         *      -Delay
+         *      -pinMode
+         *      -digitalRead
+         *      -analogWrite
+         *      -Make [only if outside  other methods]
+         * 
+         */ 
+
         Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method" });
     }
     /* Editor closing method */
