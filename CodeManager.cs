@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 
 public class CodeManager : MonoBehaviour
@@ -21,9 +20,6 @@ public class CodeManager : MonoBehaviour
     bool not_over_UI;
     float tap_duration = 0;
 
-
-    /* INTERPRETER OBJECT */
-    public Interpreter Interpreter_Object;
 
     /* MAIN TEXT DISPLAY */
     public GameObject Display_Text;
@@ -77,13 +73,11 @@ public class CodeManager : MonoBehaviour
     string[] list_of_evaluations = { "==", ">", "<", "<=", ">=", "!=" };
     //string[] list_of_operations = { " + ", " - ", " * ", " / ", " % "};
     string[] list_of_condensed_operations = { "=", "++", "--", "+=", "-=", "*=", "/=", "%=" };
-    public List<VariableObject<bool>> booleans = new List<VariableObject<bool>>();
-    public List<VariableObject<int>> integers = new List<VariableObject<int>>();
-    public List<VariableObject<double>> doubles = new List<VariableObject<double>>();
+    //public List<VariableObject<bool>> booleans = new List<VariableObject<bool>>();
+    //public List<VariableObject<int>> integers = new List<VariableObject<int>>();
+    //public List<VariableObject<double>> doubles = new List<VariableObject<double>>();
     /*public List<VariableObject<char>> characters = new List<VariableObject<char>>();*/
-    public List<VariableObject<string>> strings = new List<VariableObject<string>>();
-
-    public Stack<TaskObject> tasks = new Stack<TaskObject>();
+   // public List<VariableObject<string>> strings = new List<VariableObject<string>>();
 
     bool compiling = false;
     int current_line = -1; //points to current line of List<string> lines is being read
@@ -99,10 +93,8 @@ public class CodeManager : MonoBehaviour
     {
         /* LOAD CLASS FROM MAIN MENU */
         lines = new List<string>();
-        Display_LoadScript(LevelManager.level);
+        //Display_LoadScript(LevelManager.level);
         /* INITIALIZE INTERPRETER */
-        Interpreter_Object = new Interpreter();
-        Interpreter_Object.addLines(lines);
         Display_pushText();
     }
     /* All code that requires running per frame (animation calls, compiling, button presses */
@@ -126,7 +118,6 @@ public class CodeManager : MonoBehaviour
                 {
                     UI_setColor(UIElement_CompilationMenu, new Color(1, 0, 0));
                     UI_setColor(UIElement_CompilationMenu.transform.GetChild(1).gameObject, new Color(1, 0, 0));
-                    Compiler_compilation();
                 }
             }
             /*Editting Locker*/
@@ -342,7 +333,6 @@ public class CodeManager : MonoBehaviour
             UI_setTowardsRectTransform(UIElement_CompilationMenu, -800, 25);
             //Console stuff
             Output_text.text = Console_output;
-            Debug_text.text = Compiler_displayValues();
             int height_of_console = Output_text.text.Split('\n').Length-1;
             if (Debug_text.text.Split('\n').Length - 1 > height_of_console) height_of_console = Debug_text.text.Split('\n').Length - 1;
             GameObject.Find("UIElement_Console").GetComponent<RectTransform>().anchoredPosition = new Vector2(GameObject.Find("UIElement_Console").GetComponent<RectTransform>().anchoredPosition.x, height_of_console * 38f - 20);
@@ -355,10 +345,8 @@ public class CodeManager : MonoBehaviour
                 {
                     current_line++;
                 }
-               // Display_pushText(lines, new int[1] { current_line });
-                Compiler_compile(lines[current_line]);
+               // Display_pushText(lines, new int[1] { current_line });\
 
-                Interpreter_Object.current_line = current_line;
                 Display_pushText();
 
                 current_line++;
@@ -1109,7 +1097,7 @@ public class CodeManager : MonoBehaviour
             Editor_setOptions(list_of_condensed_operations);
         }
     }
-     public void Editor_setOptionPositions(string[] options)
+    public void Editor_setOptionPositions(string[] options)
     {
         int spacing = 220;
         int space = spacing - spacing * options.Length % 2, count = 0;
@@ -1126,759 +1114,13 @@ public class CodeManager : MonoBehaviour
         editting_locked = !editting_locked;
         UIElement_EdittingLocker.GetComponent<Image>().sprite = (Resources.Load("Sprites/editting" + editting_locked) as GameObject).GetComponent<SpriteRenderer>().sprite;
     }
-    /* Substring assisting method */
-    string Parser_splitStringBetween(string line, string side1, string side2)
-    {
-        if (side2 == ")")
-        {
-            string output = line.Substring(line.IndexOf(side1) + side1.Length);
-            int scope_counter = 0; //for any "(", ignore the following ")"
-            for (int i = 0; i < output.Length; i++)
-            {
-                if (output[i] == '(')
-                {
-                    scope_counter++;
-                }
-                if (output[i] == ')')
-                {
-                    if (scope_counter == 0)
-                    {
-                        output = output.Remove(i);
-                        return output;
-                    }
-                    scope_counter--;
-                }
-            }
-        }
-        else
-        {
-            string output = line.Substring(line.IndexOf(side1) + side1.Length);
-            output = output.Remove(output.IndexOf(side2));
-            return output;
-        }
-        return "BROKEN";
-    }
-    string Compiler_displayValues()
-    {
-        string output = "";
-        if (booleans.Count > 0)
-        {
-            output += "Booleans:\n";
-            for (int i = 0; i < booleans.Count; i++)
-            {
-                output += "\t" + booleans[i].getKey() + ": " + booleans[i].getValue() + "\n";
-            }
-        }
-        if (integers.Count > 0)
-        {
-            output += "Integers:\n";
-            for (int i = 0; i < integers.Count; i++)
-            {
-                output += "\t" + integers[i].getKey() + ": " + integers[i].getValue() + "\n";
-            }
-        }
-        if (doubles.Count > 0)
-        {
-            output += "Doubles:\n";
-            for (int i = 0; i < doubles.Count; i++)
-            {
-                output += "\t" + doubles[i].getKey() + ": " + doubles[i].getValue() + "\n";
-            }
-        }
-      /*  if (characters.Count > 0)
-        {
-            output += "Characters:\n";
-            for (int i = 0; i < characters.Count; i++)
-            {
-                output += "\t" + characters[i].getKey() + ": " + characters[i].getValue() + "\n";
-            }
-        }*/
-        if (strings.Count > 0)
-        {
-            output += "Strings:\n";
-            for (int i = 0; i < strings.Count; i++)
-            {
-                output += "\t" + strings[i].getKey() + ": " + strings[i].getValue() + "\n";
-            }
-        }
-        return output;
-    }
-    /* I forget what this does */
-    string Compiler_parseManipulator(string line)
-    {
-        string manipulation = line.Substring(line.IndexOf(" ") + 1);
-        manipulation = manipulation.Remove(manipulation.IndexOf(" "));
-        return manipulation;
-    }
-    string Compiler_parseManipulationValue(string line)
-    {
-        string manipulation = Compiler_parseManipulator(line);
-        string value = line.Substring(line.IndexOf(manipulation) + manipulation.Length + 1);
-        value = value.Remove(value.IndexOf(";"));
-        return value;
-    }
-    /* Finds brackets, deals with scope */
-    int Compiler_findNextInstanceOf(int starting_line, string bracket_type)
-    {
-        int ending_line = starting_line;
-        while (lines[ending_line].IndexOf(bracket_type) == -1)
-        {
-            ending_line++;
-        }
-        return ending_line;
-    }
-    int Compiler_findMatchingBracket(int starting_line)
-    {
-        int ending_line = starting_line;
-        int number_of_internal_brackets = 0;
-
-        bool found = false;
-
-        while (!found)
-        {
-            ending_line++;
-            if (lines[ending_line].IndexOf("{") == 0)
-            {
-                number_of_internal_brackets++;
-            }
-            if (lines[ending_line].IndexOf("}") == 0 && number_of_internal_brackets != 0)
-            {
-                number_of_internal_brackets--;
-            }
-            if (lines[ending_line].IndexOf("}") == 0 && number_of_internal_brackets == 0)
-            {
-                found = true;
-            }
-            
-        }
-        return ending_line;
-    }
-    /* Creates variables with a given name and type */
-    void Compiler_addVariable(string line)
-    {
-        string name = "";
-        string value = "";
-        if (Compiler_findVariable(Parser_splitStringBetween(line," "," ")) != "N/A")
-        {
-            print("modified" + Parser_splitStringBetween(line, " ", ";") + ";");
-            Compiler_modifyVariable(Parser_splitStringBetween(line, " ", ";") + ";");//Compiler_evaluateExpression(Parser_splitStringBetween(line, " ", ";") + ";"));
-        
-        }
-        else
-        {
-            for (int types_of_PDTs = 0; types_of_PDTs < list_of_PDTs.Length; types_of_PDTs++)
-            {
-                //DECLARING A NEW VARIABLE OF TYPE (list_of_PDTs[types_of_PDTs])
-                if (line.IndexOf(list_of_PDTs[types_of_PDTs]) == 0)
-                {
-                    //Isolate name from line of code
-                    name = Parser_splitStringBetween(line, list_of_PDTs[types_of_PDTs] + " ", " ");
-                    value = Parser_splitStringBetween(line, "= ", ";");
-                    value = Compiler_evaluateExpression(value);
-                    switch (types_of_PDTs)
-                    {
-                        case 0: //Add new integer definition to list
-                            Compiler_addBoolean(name, bool.Parse(value));
-                            break;
-                       /* case 1: //Add new character definition to list
-                            Compiler_addCharacter(name, char.Parse(value.Substring(1,1)));
-                            break;
-                        */case 2: //Add new double definition to list
-                            Compiler_addDouble(name, double.Parse(value));
-                            break;
-                        case 3: //Add new integer definition to list
-                            Compiler_addInteger(name, int.Parse(value));
-                            break;
-                        case 4: //Add new string definition to list
-                            Compiler_addString(name, value);
-                            break;
-                    }
-                }
-            }
-        }
-    }
-    /* Modifies a given variable by a given amount */
-    void Compiler_modifyVariable(string line)
-    {
-        for (int m = 0; m < booleans.Count; m++)
-        {
-            if (line.IndexOf(booleans[m].getKey() + " ") == 0)
-            {
-                bool boolean_value = bool.Parse(Parser_splitStringBetween(line, "= ", ";"));
-                switch (Compiler_parseManipulator(line))
-                {
-                    case "=":
-                        booleans[m].setValue(boolean_value);
-                        break;
-                }
-            }
-        }
-      /*  for (int m = 0; m < characters.Count; m++)
-        {
-            if (line.IndexOf(characters[m].getKey() + " ") == 0)
-            {
-                char character_value = char.Parse(Parser_splitStringBetween(line, "= ", ";"));
-                switch (Compiler_parseManipulator(line))
-                {
-                    case "=":
-                        characters[m].setValue(character_value);
-                        break;
-                }
-            }
-        }*/
-        for (int m = 0; m < doubles.Count; m++)
-        {
-            if (line.IndexOf(doubles[m].getKey() + "++;") == 0)
-            {
-                doubles[m].setValue(doubles[m].getValue() + 1);
-            }
-            else if (line.IndexOf(doubles[m].getKey() + "--;") == 0)
-            {
-                doubles[m].setValue(doubles[m].getValue() - 1);
-            }
-            else if (line.IndexOf(doubles[m].getKey() + " ") == 0)
-            {
-                double double_value = double.Parse(Compiler_evaluateExpression(Parser_splitStringBetween(line, "= ", ";")));
-                switch (Compiler_parseManipulator(line))
-                {
-                    case "=":
-                        doubles[m].setValue(double_value);
-                        break;
-                    case "+=":
-                        doubles[m].setValue(doubles[m].getValue() + double_value);
-                        break;
-                    case "-=":
-                        doubles[m].setValue(doubles[m].getValue() - double_value);
-                        break;
-                    case "*=":
-                        doubles[m].setValue(doubles[m].getValue() * double_value);
-                        break;
-                    case "/=":
-                        doubles[m].setValue(doubles[m].getValue() / double_value);
-                        break;
-                    case "%=":
-                        doubles[m].setValue(doubles[m].getValue() % double_value);
-                        break;
-                }
-            }
-        }
-        for (int m = 0; m < integers.Count; m++)
-        {
-            if (line.IndexOf(integers[m].getKey() + "++;") == 0)
-            {
-                integers[m].setValue(integers[m].getValue() + 1);
-            }
-            else if (line.IndexOf(integers[m].getKey() + "--;") == 0)
-            {
-                integers[m].setValue(integers[m].getValue() - 1);
-            }
-            else if (line.IndexOf(integers[m].getKey() + " ") == 0)
-            {
-                int int_value = int.Parse(Compiler_evaluateExpression(Parser_splitStringBetween(line, "= ", ";")));
-                switch (Compiler_parseManipulator(line))
-                {
-                    case "=":
-                        integers[m].setValue(int_value);
-                        print("modified");
-                        break;
-                    case "+=":
-                        integers[m].setValue(integers[m].getValue() + int_value);
-                        break;
-                    case "-=":
-                        integers[m].setValue(integers[m].getValue() - int_value);
-                        break;
-                    case "*=":
-                        integers[m].setValue(integers[m].getValue() * int_value);
-                        break;
-                    case "/=":
-                        integers[m].setValue(integers[m].getValue() / int_value);
-                        break;
-                    case "%=":
-                        integers[m].setValue(integers[m].getValue() % int_value);
-                        break;
-                }
-            }
-        }
-        for (int m = 0; m < strings.Count; m++)
-        {
-            if (line.IndexOf(strings[m].getKey() + " ") == 0)
-            {
-                string string_value = Compiler_evaluateExpression(Parser_splitStringBetween(line, "= ", ";"));
-                switch (Compiler_parseManipulator(line))
-                {
-                    case "=":
-                        strings[m].setValue(string_value);
-                        break;
-                    case "+=":
-                        strings[m].setValue(strings[m].getValue() + string_value);
-                        break;
-                }
-            }
-        }
-    }
-    /* Creating variables assisting methods*/
-    void Compiler_addBoolean(string name, bool value)
-    {
-        VariableObject<bool> item = new VariableObject<bool>(name);
-        item.setValue(value);
-        booleans.Add(item);
-    }
-  /*  void Compiler_addCharacter(string name, char value)
-    {
-        VariableObject<char> item = new VariableObject<char>(name);
-        //Isolate value of variable from line of code
-        item.setValue(value);
-        characters.Add(item);
-        //Display
-        for (int m = 0; m < characters.Count; m++) print(characters[m].getKey() + "->" + characters[m].getValue());
-    }*/
-    void Compiler_addDouble(string name, double value)
-    {
-        VariableObject<double> item = new VariableObject<double>(name);
-        //Isolate value of variable from line of code
-        item.setValue(value);
-        doubles.Add(item);
-        //Display
-        for (int m = 0; m < doubles.Count; m++) print(doubles[m].getKey() + "->" + doubles[m].getValue());
-    }
-    void Compiler_addInteger(string name, int value)
-    {
-        VariableObject<int> item = new VariableObject<int>(name);
-        //Isolate value of variable from line of code
-        item.setValue(value);
-        integers.Add(item);
-    }
-    void Compiler_addString(string name, string value)
-    {
-        VariableObject<string> item = new VariableObject<string>(name);
-        //Isolate value of variable from line of code
-        item.setValue(value);
-        strings.Add(item);
-        //Display
-        for (int m = 0; m < strings.Count; m++) print(strings[m].getKey() + "->" + strings[m].getValue());
-    }
-    /* Finds variables of any type with a given name */
-    string Compiler_findVariable(string name)
-    {
-        if (Compiler_getIndexOfBoolean(name) != -1) return "" + Compiler_findBoolean(name);
-        //if (Compiler_getIndexOfCharacter(name) != -1) return "" + Compiler_findCharacter(name);
-        if (Compiler_getIndexOfDouble(name) != -1) return "" + Compiler_findDouble(name);
-        if (Compiler_getIndexOfInteger(name) != -1) return "" + Compiler_findInteger(name);
-        if (Compiler_getIndexOfString(name) != -1) return Compiler_findString(name);
-        return "N/A";
-    }
-    /* Variale assisting methods */
-    int Compiler_getIndexOfBoolean(string name)
-    {
-        for (int m = 0; m < booleans.Count; m++)
-        {
-            if (name == booleans[m].getKey())
-            {
-                return m;
-            }
-        }
-        return -1;
-    }
-    bool Compiler_findBoolean(string name)
-    {
-        return booleans[Compiler_getIndexOfBoolean(name)].getValue();
-    }
-   /* int Compiler_getIndexOfCharacter(string name)
-    {
-        for (int m = 0; m < characters.Count; m++)
-        {
-            if (name == characters[m].getKey())
-            {
-                return m;
-            }
-        }
-        return -1;
-    }*/
-   /* char Compiler_findCharacter(string name)
-    {
-        return characters[Compiler_getIndexOfCharacter(name)].getValue();
-    }*/
-    int Compiler_getIndexOfDouble(string name)
-    {
-        for (int m = 0; m < doubles.Count; m++)
-        {
-            if (name == doubles[m].getKey())
-            {
-                return m;
-            }
-        }
-        return -1;
-    }
-    double Compiler_findDouble(string name)
-    {
-        return doubles[Compiler_getIndexOfDouble(name)].getValue();
-    }
-    int Compiler_getIndexOfInteger(string name)
-    {
-        for (int m = 0; m < integers.Count; m++)
-        {
-            if (name == integers[m].getKey())
-            {
-                return m;
-            }
-        }
-        return -1;
-    }
-    int Compiler_findInteger(string name)
-    {
-        return integers[Compiler_getIndexOfInteger(name)].getValue();
-    }
-    int Compiler_getIndexOfString(string name)
-    {
-        for (int m = 0; m < strings.Count; m++)
-        {
-            if (name == strings[m].getKey())
-            {
-                return m;
-            }
-        }
-        return -1;
-    }
-    string Compiler_findString(string name)
-    {
-        return strings[Compiler_getIndexOfString(name)].getValue();
-    }
-    /* Compiles and checks boolean statements, returning true or false */
-    bool Compiler_booleanEvaluation(string line)
-    {
-        if (line == "(true)") return true;
-        string evaluator = "";
-        for (int i = 0; i < list_of_evaluations.Length; i++)
-        {
-            if (line.Contains(" " + list_of_evaluations[i] + " "))
-            {
-                evaluator = list_of_evaluations[i];
-            }
-        }
-        string left_side_of_statement = Parser_splitStringBetween(line, "(", evaluator); 
-        string right_side_of_statement = Parser_splitStringBetween(line, evaluator + " ", ")");
-        left_side_of_statement = Compiler_evaluateExpression(left_side_of_statement);
-        right_side_of_statement = Compiler_evaluateExpression(right_side_of_statement);
-        return Compiler_booleanEvaluation(left_side_of_statement, right_side_of_statement, evaluator);
-    }
-    bool Compiler_booleanEvaluation(string left_side_of_statement, string right_side_of_statement, string comparision)
-    {
-        bool output_bool = false;
-        double output_double = 0.0;
-        if (bool.TryParse(left_side_of_statement, out output_bool) && bool.TryParse(right_side_of_statement, out output_bool))
-        {
-            switch (comparision)
-            {
-                case "==":
-                    return (left_side_of_statement == right_side_of_statement);
-                case "!=":
-                    return (left_side_of_statement != right_side_of_statement);
-            }
-        }
-
-        else if (double.TryParse(left_side_of_statement, out output_double) && double.TryParse(left_side_of_statement, out output_double))
-        {
-            switch (comparision)
-            {
-                case "==":
-                    return (double.Parse(left_side_of_statement) == double.Parse(right_side_of_statement));
-                case "!=":
-                    return (double.Parse(left_side_of_statement) != double.Parse(right_side_of_statement));
-                case ">":
-                    return (double.Parse(left_side_of_statement) > double.Parse(right_side_of_statement));
-                case "<":
-                    return (double.Parse(left_side_of_statement) < double.Parse(right_side_of_statement));
-                case ">=":
-                    return (double.Parse(left_side_of_statement) >= double.Parse(right_side_of_statement));
-                case "<=":
-                    return (double.Parse(left_side_of_statement) <= double.Parse(right_side_of_statement));
-            }
-        }
-        else
-        {
-            switch (comparision)
-            {
-                case "==":
-                    return (left_side_of_statement[0] == right_side_of_statement[0]);
-                case "!=":
-                    return (left_side_of_statement[0] != right_side_of_statement[0]);
-            }
-        }
-        return false;
-    }
-    /* Compiles statements such that 2 + 3 = 5 in all applicable areas */
-    string Compiler_evaluateExpression(string expression)
-    { 
-        string[] parts = expression.Split(' ');
-        string output = "";
-       
-        bool are_numbers = true;
-        double parse_output = 0.0;
-       
-        for (int i = 0; i < parts.Length; i+=2)
-        {
-            if (parts[i] == "Math.random()")
-            {
-                parts[i] = Random.value + "";
-            }
-            if (Compiler_findVariable(parts[i]) != "N/A")
-            {
-                parts[i] = Compiler_findVariable(parts[i]);
-            }
-            if (parts[i] == expression)
-            {
-                return parts[i];
-            }
-            if (!(double.TryParse(parts[i], out parse_output)))
-            {
-                are_numbers = false;
-                break;
-            }
-        }
-        if (are_numbers)
-        {
-            //  print("numbers");
-            double output_double = double.Parse(parts[0]);
-            //  double[] parts_numbers = new double[parts.Length];
-            for (int i = 1; i < parts.Length; i += 2)
-            {
-                switch (parts[i])
-                {
-                    case "+":
-                        output_double += double.Parse(parts[i + 1]);
-                        break;
-                    case "-":
-                        output_double -= double.Parse(parts[i + 1]);
-                        break;
-                    case "/":
-                        output_double /= double.Parse(parts[i + 1]);
-                        break;
-                    case "*":
-                        output_double *= double.Parse(parts[i + 1]);
-                        break;
-                    case "%":
-                        output_double %= double.Parse(parts[i + 1]);
-                        break;
-                }
-            }
-            output = "" + output_double;
-        }
-        else
-        {
-            output = "";
-            for (int i = 0; i < parts.Length; i += 2)
-            {
-                output += parts[i];
-            }
-            return output;
-
-        }
-        return output;
-
-
-    }
-    /* Task Objects, dealing with scope*/
-    int Compiler_doEndOfTask(TaskObject current_task)
-    {
-        if (current_task.variable_modifier != "")
-        {
-            Compiler_modifyVariable(current_task.variable_modifier);
-        }
-        if (current_task.condition != "")
-        {
-            if (Compiler_booleanEvaluation(current_task.condition))
-            {
-                return current_task.jumpTo_line;
-            }
-            else
-            {
-                return current_task.ending_line;
-            }
-        }
-        else
-        {
-            return current_task.starting_line;
-        }
-    }
-    /* Compiling lines of code */
-    public void Compiler_compilation()
-    {
-        if (compiling == false)
-        {
-            if (current_line == lines.Count)
-            {
-                Compiler_reset();
-                
-            }
-        }
-        else
-        {
-            for (int i = 0; i < this.transform.childCount; i++)
-            {
-                Destroy(this.transform.GetChild(i).gameObject);
-            }
-        }
-        compiling = !compiling;
-        
-    }
-    public void Compiler_toggleConsoleMode()
-    {
-        on_console = !on_console;
-    }
-    /* Resetting all compiler-related variables to prepare for another iteration */
-    public void Compiler_reset()
-    {
-        compiling = false;
-        Console_output = "Console:\n"; 
-        // this.lines = new List<string>();
-        tasks = new Stack<TaskObject>();
-        //tasks.Push(new TaskObject(0, this.lines.Count, "", ""));
-        current_line = 0;
-
-        booleans = new List<VariableObject<bool>>();
-        integers = new List<VariableObject<int>>();
-        doubles = new List<VariableObject<double>>();
-        strings = new List<VariableObject<string>>();
-
-        for (int i = 0; i < this.transform.childCount; i++)
-        {
-            Destroy(this.transform.GetChild(i).gameObject);
-        }
-        current_line = 0;
-
-    }
-    /* Parsing all the lines of text*/
-    public void Compiler_compile(List<string> lines_in)
-    {
-        for (current_line = 0; current_line < lines_in.Count; current_line++)
-        {
-            Compiler_compile(lines_in[current_line]);
-        }
-    }
-    /* Parsing each line of text into code (a.k.a. where the magic happens) */
-    public void Compiler_compile(string line)
-    {
-        // print(line);
-        if (line.IndexOf("while (") == 0)
-        {
-            string condition = ("(" + Parser_splitStringBetween(line, "(", ")") + ")");
-            //  print(condition);
-            if (Compiler_booleanEvaluation(condition))
-            {
-                tasks.Push(new TaskObject(current_line, Compiler_findMatchingBracket(current_line), condition, ""));
-            }
-            else
-            {
-                current_line = Compiler_findNextInstanceOf(current_line, "}");
-            }
-        }
-        if (line.IndexOf("for (") == 0)
-        {
-            Compiler_addVariable(Parser_splitStringBetween(line, "(", ";") + ";");
-            string condition = ("(" + Parser_splitStringBetween(line, "; ", ";") + ")");
-            if (Compiler_booleanEvaluation(condition))
-            {
-                tasks.Push(new TaskObject(current_line, Compiler_findMatchingBracket(current_line), condition, (Parser_splitStringBetween(line, Parser_splitStringBetween(line, "; ", ";"), ")") + ";").Substring(2)));
-            }
-            else
-            {
-                current_line = Compiler_findNextInstanceOf(current_line, "}");
-            }
-        }
-        if (tasks.Count != 0)
-        {
-            if (current_line == tasks.Peek().ending_line)
-            {
-                current_line = Compiler_doEndOfTask(tasks.Peek());
-                if (current_line == tasks.Peek().ending_line) tasks.Pop();
-            }
-        }
-
-        if (line.IndexOf("if (") == 0)
-        {
-            next_else = false; //Used to know if an "else" is linked to an if/will be executed           
-            if (!Compiler_booleanEvaluation(line))
-            {
-                //Jump past If Statement
-                current_line = Compiler_findMatchingBracket(current_line);//Compiler_findNextInstanceOf(current_line, "}");
-                //Enter next else if available
-                next_else = true;
-            }
-        }
-        if (line.IndexOf("else") == 0)
-        {
-            if (next_else == false)
-            {
-                current_line = Compiler_findMatchingBracket(current_line);
-            }
-            
-        }
-
-        //Variable statements
-        for (int types_of_PDTs = 0; types_of_PDTs < list_of_PDTs.Length; types_of_PDTs++)
-        {
-            //DECLARING A NEW VARIABLE OF TYPE (list_of_PDTs[types_of_PDTs])
-            if (line.IndexOf(list_of_PDTs[types_of_PDTs] + " ") == 0)
-            {
-                Compiler_addVariable(line);
-            }
-        }
-        //Looks for a simple statement that is modifying variables
-        Compiler_modifyVariable(line);
-
-        if (line.IndexOf("System.out.print") == 0)
-        {
-            string output = Parser_splitStringBetween(line, "(", ")");
-            print(output);
-            output = Compiler_evaluateExpression(output);
-            print(output);
-            if (line.IndexOf("System.out.println") == 0)
-            {
-                Display_pushConsoleText(output + "\n");
-            }
-            else Display_pushConsoleText(output);
-        }
-        if (line.IndexOf("Iterate(") == 0)
-        {
-            if (line.Contains("Position"))
-            {
-
-                string type = Parser_splitStringBetween(line, "(", ",");
-                type = type.Substring(1, type.Length - 2);
-                string pos = Parser_splitStringBetween(line, ", new Position(", ")");
-
-                string x = Compiler_evaluateExpression(pos.Remove(pos.IndexOf(",")));
-                string y = Compiler_evaluateExpression(pos.Substring(pos.IndexOf(",")+1));
-               
-                Vector2 position = new Vector2(float.Parse(x), float.Parse(y));
-                position /= 6;
-                GameObject obj = Instantiate(Resources.Load(type), position, this.transform.rotation) as GameObject;
-                obj.transform.SetParent(this.transform);
-                   
-                //obj.GetComponent<SpriteRenderer>().color = new Color(Random.value, Random.value, Random.value);
-            }
-            else
-            {
-                string output = Parser_splitStringBetween(line, "(", ")");
-                output = output.Substring(1, output.Length - 2); 
-                Instantiate(Resources.Load(output), this.transform.position, this.transform.rotation);
-            }
-        }
-        if (line.IndexOf("ClearIterations();") == 0)
-        {
-            for (int i = 0; i < this.transform.childCount; i++)
-            {
-                Destroy(this.transform.GetChild(i).gameObject);
-            }
-        }
-    }
-    /* Adjust, colorize, and display all code text*/
+   
 
 
 
     void Display_pushText()
     {
-        Display_Text.GetComponent<TextMeshProUGUI>().text = Interpreter_Object.ToString();
+       // Display_Text.GetComponent<TextMeshProUGUI>().text = Interpreter_Object.ToString();
     }
 
     public void Display_pushConsoleText(string text)
@@ -1917,12 +1159,8 @@ public class CodeManager : MonoBehaviour
         {
             this.lines.Add(lines[i]);             
         }
-        Compiler_reset();
 
-
-
-        Interpreter_Object = new Interpreter();
-        Interpreter_Object.addLines(this.lines);
+       
         Display_pushText();
 
 
