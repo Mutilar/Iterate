@@ -85,15 +85,15 @@ public class CodeManager : MonoBehaviour
 
     float time_delayer; //counter for compiling speed
 
-    /* Initializing code (see compiler_reset as main initializer) */
+    /* Initializing code (C++ified) */
     void Start()
     {
-        /* LOAD CLASS FROM MAIN MENU */
+        /* Load blank C++ Arduino document */
         lines = new List<string>();
         Display_LoadScript("NewClass");
         Display_pushText();
     }
-    /* All code that requires running per frame (animation calls, compiling, button presses */
+    /* All code that requires running per frame (animation calls, button presses */
     void Update()
     {
         float text_height = 39.765f * Display_Text.transform.localScale.y;
@@ -1077,39 +1077,28 @@ public class CodeManager : MonoBehaviour
         Display_Text.GetComponent<Text>().text = output;//Interpreter_Object.ToString();
     }
 
-    /* Display UI */
+    /* Display UI (C++ified)*/
     public void Display_OptionsMenu()
     {
         UI_optionsMenuOpen = !UI_optionsMenuOpen;
     }
     public void Display_LoadScript(string name)
     {
-        //CODE FOR ASKING FOR NAME OF CLASS
+        //Name of class prompt
         Editor_setOptions(new string[] { "Enter the class's name:" });
         editting_line_type = "SetClassName";
-
-        print(name);
+        //Pull data from resources folder (blank document syntax)
         TextAsset textFile = Resources.Load(name) as TextAsset;
+        //Populating inline variables
         string[] lines = textFile.text.Split('\n');
-
         this.lines = new List<string>();
         for (int i = 0; i < lines.Length; i++)
         {
             this.lines.Add(lines[i]);
         }
-
-
+        //Pushing populated variables
         Display_pushText();
-
-
-
-
         Display_Text.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
-    }
-    /* Back to main menu */
-    public void Misc_ReturnToMain()
-    {
-        SceneManager.LoadScene("Menu");
     }
 
 }
