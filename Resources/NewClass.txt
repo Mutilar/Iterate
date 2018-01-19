@@ -1,6 +1,13 @@
-public class 
+/*
+Name
+*/
+
+void setup() 
 {
-public static void main (String[] args)
+
+}
+
+void loop() 
 {
-}
+
 }
