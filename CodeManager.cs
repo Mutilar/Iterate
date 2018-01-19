@@ -108,15 +108,6 @@ public class CodeManager : MonoBehaviour
         {
             old_position = Input.mousePosition;
             not_over_UI = true;
-            if (UI_clickCheck(-1000, 200, -200, 0, old_position, UIElement_CompilationMenu.transform.position))
-            {
-                not_over_UI = false;
-                if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_CompilationMenu.transform.position))
-                {
-                    UI_setColor(UIElement_CompilationMenu, new Color(1, 0, 0));
-                    UI_setColor(UIElement_CompilationMenu.transform.GetChild(1).gameObject, new Color(1, 0, 0));
-                }
-            }
             /*Editting Locker*/
             if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_EdittingLocker.transform.position)) { not_over_UI = false; UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0)); Editor_toggleLock(); }
             /*Options Menu*/
@@ -325,9 +316,9 @@ public class CodeManager : MonoBehaviour
       
         {
             //UIElement_CompilationMenu.GetComponent<Image>().sprite = (Resources.Load("Sprites/Start") as GameObject).GetComponent<SpriteRenderer>().sprite;
-            UIElement_CompilationMenu.transform.GetChild(0).gameObject.SetActive(false);
-            UIElement_CompilationMenu.transform.GetChild(1).gameObject.SetActive(false);
-            UI_setTowardsRectTransform(UIElement_CompilationMenu, 0, 25);
+         //   UIElement_CompilationMenu.transform.GetChild(0).gameObject.SetActive(false);
+           // UIElement_CompilationMenu.transform.GetChild(1).gameObject.SetActive(false);
+           // UI_setTowardsRectTransform(UIElement_CompilationMenu, 0, 25);
         }
         if (UI_optionsMenuOpen)
         {
@@ -352,8 +343,8 @@ public class CodeManager : MonoBehaviour
         }
 
 
-        UI_resetColor(UIElement_CompilationMenu, .025f);
-        UI_resetColor(UIElement_CompilationMenu.transform.GetChild(1).gameObject, .025f);
+      //  UI_resetColor(UIElement_CompilationMenu, .025f);
+       // UI_resetColor(UIElement_CompilationMenu.transform.GetChild(1).gameObject, .025f);
         UI_resetColor(UIElement_OptionsMenu, .025f);
         UI_resetColor(UIElement_OptionsMenu.transform.GetChild(0).gameObject, .025f);
         UI_resetColor(UIElement_EdittingLocker, .025f);
