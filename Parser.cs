@@ -14,7 +14,7 @@ public class Parser
         {
             if (line.Substring(i, word.Length) == word)
             {
-                if (line[i-1] == '\t' || line[i-1] == ' ' || line[i - 1] == '(')
+                if (i == 0 || line[i-1] == '\t' || line[i-1] == ' ' || line[i - 1] == '(')
                 {
                     if (line[i + word.Length] == ' ' || line[i + word.Length] == '(' || line[i + word.Length] == '.' || line[i + word.Length] == '[' || line[i + word.Length] == '\n')
                     { 

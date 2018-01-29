@@ -96,6 +96,7 @@ public class CodeManager : MonoBehaviour
     /* All code that requires running per frame (animation calls, button presses */
     void Update()
     {
+        Display_pushText();
         float text_height = 39.765f * Display_Text.transform.localScale.y;
 
 
@@ -225,12 +226,7 @@ public class CodeManager : MonoBehaviour
                 if (allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen)
                 {
                     int line = (int)((Screen.height - Input.mousePosition.y + Display_Text.GetComponent<RectTransform>().anchoredPosition.y) / text_height + 1);
-                    int line_of_main_method = 0;
-                    while (lines[line_of_main_method].Contains("public static void") == false)
-                    {
-                        line_of_main_method++;
-                    }
-                    if (line > ++line_of_main_method && line < lines.Count - 1)
+                    if (line < lines.Count - 1)
                     {
                         if (!editting_locked)
                         {
@@ -247,7 +243,7 @@ public class CodeManager : MonoBehaviour
                         }
                     }
                 }
-                // Display_pushText(lines, new int[0]);
+                Display_pushText();
             }
             if (tap_duration > .25f && tapping_over_same_line)
             {
@@ -330,7 +326,7 @@ public class CodeManager : MonoBehaviour
         }
         if (editting_mode)
         {
-            UI_setTowardsRectTransform(Display_Text.gameObject, ((editting_tabAmount) * -1 * text_tab_width) - 100f, Display_Text.GetComponent<RectTransform>().anchoredPosition.y);
+            //UI_setTowardsRectTransform(Display_Text.gameObject, ((editting_tabAmount) * -1 * text_tab_width) - 100f, Display_Text.GetComponent<RectTransform>().anchoredPosition.y);
             UIElement_EdittingMenu.GetComponent<RectTransform>().sizeDelta = new Vector2(lines[editting_line + 1].Length * 120f + 300f, 410f);
         }
 
@@ -564,12 +560,13 @@ public class CodeManager : MonoBehaviour
         if (editting_line_type == "SetClassName")
         {
             int line = 0;
-            while (lines[line].Contains("public class") == false)
+            while (lines[line].Contains("/*") == false)
             {
                 line++;
             }
-            lines[line] = "public class " + input;
-            // Display_pushText(lines, new int[0]);
+            line++;
+            lines[line] = "" + input;
+            Display_pushText();
 
         }
         if (editting_line_type.Contains("rint"))
@@ -703,7 +700,7 @@ public class CodeManager : MonoBehaviour
                 {
                     //voids
                     editting_line_type = selection; lines[editting_line + 1] = selection;
-                    Editor_setOptions(new string[] { "System", "Iterate", });
+                    Editor_setOptions(new string[] { "Serial", "Pin Mode", "Digital Read", "Analog Write" });
                 }
                 else
                 {
@@ -744,9 +741,9 @@ public class CodeManager : MonoBehaviour
                 if (editting_line_type == "Keyword") editting_line_type = selection;
                 Editor_setOptions(new string[] { "While Loop", "For Loop" });
                 break;
-            case "System":
+            case "Serial":
                 lines[editting_line + 1] = selection;
-                Editor_setOptions(new string[] { "Print", "Print Line" });
+                Editor_setOptions(new string[] { "Begin", "Print", "Print Line" });
                 break;
             case "Iterate":
                 lines[editting_line + 1] = selection;
@@ -847,14 +844,19 @@ public class CodeManager : MonoBehaviour
                 }
                 else Editor_setOptions(list_of_evaluations);
                 break;
+            case "Begin":
+                editting_line_type = "Begon";
+                lines[editting_line + 1] = "Serial.begin(9600)";
+                Editor_setOptions(new string[] { "Finish" });
+                break;
             case "Print":
                 editting_line_type = "Print";
-                lines[editting_line + 1] = "System.out.print()";
+                lines[editting_line + 1] = "Serial.print()";
                 Editor_setOptions(new string[] { "Variable", "String Literal", "Number" });
                 break;
             case "Print Line":
                 editting_line_type = "Print";
-                lines[editting_line + 1] = "System.out.println()";
+                lines[editting_line + 1] = "Serial.println()";
                 Editor_setOptions(new string[] { "Variable", "String Literal", "Number" });
                 break;
             case "Modifier":
@@ -870,9 +872,10 @@ public class CodeManager : MonoBehaviour
                 }
                 break;
             case "Finish":
-                if (editting_line_type.IndexOf("Modify") == 0 || editting_line_type == "Print") lines[editting_line + 1] += ";";
+                //if (editting_line_type.IndexOf("Modify") == 0 || editting_line_type == "Print") 
                 if (editting_line_type.Contains("If") || editting_line_type.Contains("For") || editting_line_type.Contains("While"))
                 { lines.Insert(editting_line + 2, "{"); lines.Insert(editting_line + 3, "}"); }
+                else lines[editting_line + 1] += ";";
                 Editor_end();
                 break;
         }
@@ -1093,7 +1096,8 @@ public class CodeManager : MonoBehaviour
         string output = "";
         for (int i = 0; i < lines.Count; i++)
         {
-            output += lines[i] + "\n";
+            if (i < 9) output += "0";
+            output += (i + 1) + "\t" +  ColorCoder.colorize( lines[i] ) + "\n";
         }
         Display_Text.GetComponent<Text>().text = output;//Interpreter_Object.ToString();
     }
