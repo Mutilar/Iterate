@@ -1,6 +1,6 @@
 # Iterate
 
-[logo]: Sprites/Iterate_icon.png "Iterate's Icon"
+[logo]: https://github.com/Mutilar/Iterate/Sprites/Iterate_icon.png "Iterate's Icon"
 
 ## App Description:
 
