@@ -97,9 +97,63 @@ public class CodeManager : MonoBehaviour
     void Update()
     {
         Display_pushText();
-        float text_height = 39.765f * Display_Text.transform.localScale.y;
+        float text_height = 42f * Display_Text.transform.localScale.y;//39.765f * Display_Text.transform.localScale.y;
+        // - Display_Text.GetComponent<RectTransform>().position.y
+        int current_line = (int)((Screen.height - Input.mousePosition.y) / text_height);
+        float snap_to_line = current_line * text_height;
+        float part_of_line = (Screen.height - Input.mousePosition.y) / text_height - Mathf.Round((Screen.height - Input.mousePosition.y) / text_height);
+       // GameObject.Find("EdittingPointer").transform.GetChild(0).gameObject.GetComponent<Text>().text = part_of_line + "";
+
+        if ((part_of_line) > -.35f && (part_of_line) < 0)
+        {
+            GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 1, 1, .5f);
+            GameObject.Find("EdittingPointer").GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width / 2, 15);
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (lines[current_line+1].Contains("{"))
+                {
+                    GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 0, 0, 1f);
+                }
+                else if (!UIElement_EdittingMenu.activeInHierarchy && !UIElement_InputField.activeInHierarchy)
+                {
+                    lines.Insert(current_line + 1, "");
+                }
+                else
+                {
+
+                }
+            }
 
 
+            snap_to_line = snap_to_line + 10 + text_height/2;//(Mathf.Round((Screen.height - Input.mousePosition.y) / text_height) - .25f) * text_height; //((Screen.height - Input.mousePosition.y) / text_height) * text_height;
+
+        }
+        else
+        {
+            GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 1, 1, .5f);
+            GameObject.Find("EdittingPointer").GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width / 2, 40);
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (lines[current_line].Contains("void"))
+                {
+                    GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 0, 0, 1f);
+                }
+                else if (!UIElement_EdittingMenu.activeInHierarchy && !UIElement_InputField.activeInHierarchy)
+                {
+                    Editor_start(current_line);// lines.RemoveAt(current_line);
+                }
+                else
+                {
+
+                }
+            }
+
+
+
+        }
+        //float snap_to_line = (int)((Screen.height - Input.mousePosition.y) / text_height) * text_height;
+        GameObject.Find("EdittingPointer").GetComponent<RectTransform>().position = new Vector2(0, Screen.height - snap_to_line );
+        GameObject.Find("EdittingPointer").transform.GetChild(0).gameObject.GetComponent<Text>().text = (int)((Screen.height - Input.mousePosition.y) / text_height) + "";
 
         allowed_to_edit = true;
         if (UIElement_InputField.activeSelf == true) allowed_to_edit = false;
@@ -107,7 +161,7 @@ public class CodeManager : MonoBehaviour
         //!!
         //font size 50 = 41.75 pixels  !!!!
         //!!
-
+        
         if (Input.GetMouseButtonDown(0))
         {
             old_position = Input.mousePosition;
@@ -138,7 +192,7 @@ public class CodeManager : MonoBehaviour
                             Editor_selectOption(UIElement_EdittingMenu.transform.GetChild(i).GetChild(0).gameObject.GetComponent<Text>().text);
                             //Display_pushText(lines, new int[0]);
                             //resize main thingy
-                            print(lines[editting_line + 1]);
+                            print(lines[editting_line]);
                             break;
                         }
                     }
@@ -146,6 +200,7 @@ public class CodeManager : MonoBehaviour
             }
             tapping_over_same_line = true;
         }
+
         if (Input.GetMouseButton(0))
         {
             if (tapping_over_same_line == true && allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen)
@@ -218,7 +273,7 @@ public class CodeManager : MonoBehaviour
             }
             old_position = input_position;
         }
-        if (Input.GetMouseButtonUp(0))
+        if (false && Input.GetMouseButtonUp(0))
         {
             if (tap_duration < .25f && tapping_over_same_line)
             {
@@ -239,11 +294,10 @@ public class CodeManager : MonoBehaviour
                             {
                                 line++;
                             }
-                            Editor_start(line);
+                            //Editor_start(line);
                         }
                     }
                 }
-                Display_pushText();
             }
             if (tap_duration > .25f && tapping_over_same_line)
             {
@@ -327,7 +381,7 @@ public class CodeManager : MonoBehaviour
         if (editting_mode)
         {
             //UI_setTowardsRectTransform(Display_Text.gameObject, ((editting_tabAmount) * -1 * text_tab_width) - 100f, Display_Text.GetComponent<RectTransform>().anchoredPosition.y);
-            UIElement_EdittingMenu.GetComponent<RectTransform>().sizeDelta = new Vector2(lines[editting_line + 1].Length * 120f + 300f, 410f);
+            UIElement_EdittingMenu.GetComponent<RectTransform>().sizeDelta = new Vector2(lines[editting_line].Length * 120f + 300f, 410f);
         }
 
 
@@ -335,6 +389,7 @@ public class CodeManager : MonoBehaviour
         UI_resetColor(UIElement_OptionsMenu.transform.GetChild(0).gameObject, .025f);
         UI_resetColor(UIElement_EdittingLocker, .025f);
         UI_resetColor(UIElement_EdittingMenu.transform.GetChild(3).gameObject, .025f);
+        
     }
     /* Check for button press (manual button) */
     public bool UI_clickCheck(float xMin, float xMax, float yMin, float yMax, Vector2 mousePosition, Vector2 otherPosition)
@@ -399,10 +454,10 @@ public class CodeManager : MonoBehaviour
                 editting_tabAmount--;
             }
         }
-        print(editting_tabAmount);
-        lines.Insert(line, "");
-        lines.Insert(line, " ");
-        lines.Insert(line, "");
+       // print(editting_tabAmount);
+       // lines.Insert(line, "");
+      //  lines.Insert(line, " ");
+      //  lines.Insert(line, "");
 
         UIElement_EdittingMenu.SetActive(true);
         UI_setRectTransform(UIElement_EdittingMenu, -5, -Screen.height / 2);//(line + 1) * -41.75f + 12f);
@@ -429,22 +484,16 @@ public class CodeManager : MonoBehaviour
          *      -analogWrite
          *      -Make [only if outside  other methods]
          * 
-         */ 
-
-        Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method" });
+         */
+        Editor_setOptions(new string[] { "New Line", "Delete Line", "Cancel",});
+        //Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method" });
     }
     /* Editor closing method */
     public void Editor_end()
     {
         editting_line = -1;
         editting_mode = false;
-        for (int i = 0; i < lines.Count; i++)
-        {
-            if (lines[i] == "")
-            {
-                lines.RemoveAt(i);
-            }
-        }
+
         editting_line_type = "";
         UIElement_EdittingMenu.SetActive(false);
     }
@@ -571,7 +620,7 @@ public class CodeManager : MonoBehaviour
         }
         if (editting_line_type.Contains("rint"))
         {
-            lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
             Editor_setOptions(new string[] { "Finish" });
         }
         if (editting_line_type.Contains("If"))
@@ -579,36 +628,36 @@ public class CodeManager : MonoBehaviour
             if (editting_line_type == "IfLeftSide") Editor_setOptions(new string[] { "Comparison" });
             else Editor_setOptions(new string[] { "Finish" });
 
-            lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
 
         }
         if (editting_line_type.Contains("Modify"))
         {
             if (editting_line_type.IndexOf("ForModify") == 0)
             {
-                lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
+                lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
                 Editor_setOptions(new string[] { "Finish" });
 
             }
             else if (editting_line_type.Contains("For"))
             {
-                lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
+                lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
                 Editor_setOptions(new string[] { "Modifier" });
             }
             else
             {
                 if (editting_line_type == "ModifyString")
                 {
-                    lines[editting_line + 1] += input;
+                    lines[editting_line] += input;
                 }
-                else lines[editting_line + 1] += input;
+                else lines[editting_line] += input;
                 Editor_setOptions(new string[] { "Finish" });
             }
         }
 
         if (editting_line_type == "ForSetVariable")
         {
-            lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + ")";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
             editting_line_type = "ForSetVariableModify" + editting_variable_type;
 
             Editor_setOptions(new string[] { "Comparison" });
@@ -620,13 +669,13 @@ public class CodeManager : MonoBehaviour
         {
             if (editting_line_type == "ForNameVariable")
             {
-                lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + " = )";
+                lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + " = )";
                 editting_line_type = "ForSetVariable";
                 integers_within_editting_scope.Add(input);
             }
             else
             {
-                lines[editting_line + 1] += input + " = ";
+                lines[editting_line] += input + " = ";
                 editting_line_type = "ModifyInteger";
             }
             if (integers_within_editting_scope.Count != 0)
@@ -646,13 +695,13 @@ public class CodeManager : MonoBehaviour
         {
             if (editting_line_type == "ForNameVariable")
             {
-                lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + input + " = )";
+                lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + " = )";
                 editting_line_type = "ForSetVariable";
                 doubles_within_editting_scope.Add(input);
             }
             else
             {
-                lines[editting_line + 1] += input + " = ";
+                lines[editting_line] += input + " = ";
                 editting_line_type = "ModifyDouble";
             }
             if (doubles_within_editting_scope.Count != 0)
@@ -671,7 +720,7 @@ public class CodeManager : MonoBehaviour
         if (editting_line_type == "CreateBoolean")
         {
             editting_line_type = "ModifyBoolean";
-            lines[editting_line + 1] += input + " = ";
+            lines[editting_line] += input + " = ";
 
             if (booleans_within_editting_scope.Count != 0) Editor_setOptions(new string[] { "Variable", "True", "False" });
             else Editor_setOptions(new string[] { "True", "False" });
@@ -679,7 +728,7 @@ public class CodeManager : MonoBehaviour
         if (editting_line_type == "CreateString")
         {
             editting_line_type = "ModifyString";
-            lines[editting_line + 1] += input + " = ";
+            lines[editting_line] += input + " = ";
 
             if (strings_within_editting_scope.Count != 0) Editor_setOptions(new string[] { "Variable", "String Literal" });
             else Editor_setOptions(new string[] { "String Literal" });
@@ -692,6 +741,9 @@ public class CodeManager : MonoBehaviour
 
         switch (selection)
         {
+            case "New Line":
+                Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method" });
+                break;
             case "Flow Control":
                 if (editting_line_type == "") { Editor_setOptions(new string[] { "If", "Else", "While", "For" }); editting_line_type = selection; }
                 break;
@@ -699,7 +751,7 @@ public class CodeManager : MonoBehaviour
                 if (editting_line_type == "")
                 {
                     //voids
-                    editting_line_type = selection; lines[editting_line + 1] = selection;
+                    editting_line_type = selection; lines[editting_line] = selection;
                     Editor_setOptions(new string[] { "Serial", "Pin Mode", "Digital Read", "Analog Write" });
                 }
                 else
@@ -734,7 +786,7 @@ public class CodeManager : MonoBehaviour
                 if (editting_line_type == "Print") { Editor_setOptions(available_variable_types); }
                 break;
             case "Conditional":
-                if (editting_line_type == "Keyword") { editting_line_type = selection; lines[editting_line + 1] = selection; }
+                if (editting_line_type == "Keyword") { editting_line_type = selection; lines[editting_line] = selection; }
                 Editor_setOptions(new string[] { "If", "Else" });
                 break;
             case "Loop":
@@ -742,19 +794,19 @@ public class CodeManager : MonoBehaviour
                 Editor_setOptions(new string[] { "While Loop", "For Loop" });
                 break;
             case "Serial":
-                lines[editting_line + 1] = selection;
+                lines[editting_line] = selection;
                 Editor_setOptions(new string[] { "Begin", "Print", "Print Line" });
                 break;
             case "Iterate":
-                lines[editting_line + 1] = selection;
+                lines[editting_line] = selection;
                 Editor_setOptions(new string[] { "Iterate();", "ClearIterations();" });
                 break;
             case "Iterate();":
-                lines[editting_line + 1] = selection;
+                lines[editting_line] = selection;
                 //  Editor_setOptions(new string[] { "Iterate(Phone.Vibrate);" });
                 break;
             case "ClearIterations();":
-                lines[editting_line + 1] = selection;
+                lines[editting_line] = selection;
                 Editor_setOptions(new string[] { "Finish" });
                 break;
             case "Math":
@@ -763,11 +815,11 @@ public class CodeManager : MonoBehaviour
             case "Random Value":
                 if (editting_line_type.Contains("If") || editting_line_type.Contains("Print"))
                 {
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "Math.random())";
+                    lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + "Math.random())";
                 }
                 else
                 {
-                    lines[editting_line + 1] += "Math.random()";
+                    lines[editting_line] += "Math.random()";
                 }
                 Editor_setOptions(new string[] { "Finish" });
                 break;
@@ -778,57 +830,57 @@ public class CodeManager : MonoBehaviour
                 Editor_setOptions(new string[] { "Enter a string:" });
                 break;
             case "Integer":
-                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line + 1] = "int "; editting_line_type = "CreateInteger"; }
-                else if (editting_line_type == "For") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "int )"; editting_line_type = "ForNameVariable"; }
+                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line] = "int "; editting_line_type = "CreateInteger"; }
+                else if (editting_line_type == "For") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + "int )"; editting_line_type = "ForNameVariable"; }
                 else Editor_setOptions(integers_within_editting_scope.ToArray());
                 editting_variable_type = "Integer";
                 break;
             case "Double":
-                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line + 1] = "double "; editting_line_type = "CreateDouble"; }
-                else if (editting_line_type == "For") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "double )"; editting_line_type = "ForNameVariable"; }
+                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line] = "double "; editting_line_type = "CreateDouble"; }
+                else if (editting_line_type == "For") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + "double )"; editting_line_type = "ForNameVariable"; }
                 else Editor_setOptions(doubles_within_editting_scope.ToArray());
                 editting_variable_type = "Double";
                 break;
             case "Boolean":
-                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line + 1] = "boolean "; editting_line_type = "CreateBoolean"; }
+                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line] = "boolean "; editting_line_type = "CreateBoolean"; }
                 else Editor_setOptions(booleans_within_editting_scope.ToArray());
                 editting_variable_type = "Boolean";
                 break;
             case "String":
-                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line + 1] = "String "; editting_line_type = "CreateString"; }
+                if (editting_line_type == "CreateVariable") { Editor_setOptions(new string[] { "Enter a name:" }); lines[editting_line] = "String "; editting_line_type = "CreateString"; }
                 else Editor_setOptions(strings_within_editting_scope.ToArray());
                 editting_variable_type = "String";
                 break;
             case "True":
                 if (editting_line_type.Contains("If"))
                 {
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "true)";
+                    lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + "true)";
                 }
-                else lines[editting_line + 1] += "true";
+                else lines[editting_line] += "true";
                 Editor_setOptions(new string[] { "Finish" });
                 break;
             case "False":
                 if (editting_line_type.Contains("If"))
                 {
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "false)";
+                    lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + "false)";
                 }
-                else lines[editting_line + 1] += "false";
+                else lines[editting_line] += "false";
                 Editor_setOptions(new string[] { "Finish" });
                 break;
             case "If":
                 editting_line_type = "If";
-                lines[editting_line + 1] = "if ()";
+                lines[editting_line] = "if ()";
                 Editor_setOptions(new string[] { "Variable", "Method", "String Literal", "Number" });
                 break;
             case "While":
                 editting_line_type = "If";
                 Editor_setOptions(new string[] { "Variable", "Method", "String Literal", "Number" });
-                lines[editting_line + 1] = "while ()";
+                lines[editting_line] = "while ()";
                 break;
             case "For":
                 editting_line_type = "For";
                 Editor_setOptions(new string[] { "Integer", "Double" });
-                lines[editting_line + 1] = "for ()";
+                lines[editting_line] = "for ()";
                 break;
             //case "Operator":
             //    if (editting_variable_type == "String") Editor_setOptions(new string[] { " + " });
@@ -838,7 +890,7 @@ public class CodeManager : MonoBehaviour
                 if (editting_variable_type == "Boolean" || editting_variable_type == "String") Editor_setOptions(new string[] { "==", "!=" });
                 else if (editting_line_type.Contains("ForSet"))
                 {
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "; )";
+                    lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + "; )";
                     editting_line_type = "ForComparisonModify" + editting_variable_type;
                     Editor_findPossibleValuesForVariables();
                 }
@@ -846,21 +898,21 @@ public class CodeManager : MonoBehaviour
                 break;
             case "Begin":
                 editting_line_type = "Begon";
-                lines[editting_line + 1] = "Serial.begin(9600)";
+                lines[editting_line] = "Serial.begin(9600)";
                 Editor_setOptions(new string[] { "Finish" });
                 break;
             case "Print":
                 editting_line_type = "Print";
-                lines[editting_line + 1] = "Serial.print()";
+                lines[editting_line] = "Serial.print()";
                 Editor_setOptions(new string[] { "Variable", "String Literal", "Number" });
                 break;
             case "Print Line":
                 editting_line_type = "Print";
-                lines[editting_line + 1] = "Serial.println()";
+                lines[editting_line] = "Serial.println()";
                 Editor_setOptions(new string[] { "Variable", "String Literal", "Number" });
                 break;
             case "Modifier":
-                lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + "; )";
+                lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + "; )";
                 editting_line_type = "ForModify" + editting_variable_type;
                 if (editting_variable_type == "Integer")
                 {
@@ -875,7 +927,7 @@ public class CodeManager : MonoBehaviour
                 //if (editting_line_type.IndexOf("Modify") == 0 || editting_line_type == "Print") 
                 if (editting_line_type.Contains("If") || editting_line_type.Contains("For") || editting_line_type.Contains("While"))
                 { lines.Insert(editting_line + 2, "{"); lines.Insert(editting_line + 3, "}"); }
-                else lines[editting_line + 1] += ";";
+                else lines[editting_line] += ";";
                 Editor_end();
                 break;
         }
@@ -915,7 +967,7 @@ public class CodeManager : MonoBehaviour
                 if (editting_line_type == "IfLeftSide")
                 {
                     editting_line_type = "IfRightSide";
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + " " + selection + " )";
+                    lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + " " + selection + " )";
                     if (editting_variable_type == "Boolean")
                     {
                         if (booleans_within_editting_scope.Count != 0) Editor_setOptions(new string[] { "Variable", "True", "False" });
@@ -930,7 +982,7 @@ public class CodeManager : MonoBehaviour
                 }
                 if (editting_line_type.Contains("For"))
                 {
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + " " + selection + " )";
+                    lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + " " + selection + " )";
                     Editor_setOptions(new string[] { "Variable", "Method", "Number" });
 
                 }
@@ -944,12 +996,12 @@ public class CodeManager : MonoBehaviour
                 {
                     if (selection == "++" || selection == "--")
                     {
-                        lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
+                        lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ")";
                         Editor_setOptions(new string[] { "Finish" });
                     }
                     else
                     {
-                        lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + " " + selection + " )";
+                        lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + " " + selection + " )";
 
                         Editor_findPossibleValuesForVariables();
                     }
@@ -958,12 +1010,12 @@ public class CodeManager : MonoBehaviour
                 {
                     if (selection == "++" || selection == "--")
                     {
-                        lines[editting_line + 1] += selection;
+                        lines[editting_line] += selection;
                         Editor_setOptions(new string[] { "Finish" });
                     }
                     else
                     {
-                        lines[editting_line + 1] += " " + selection + " ";
+                        lines[editting_line] += " " + selection + " ";
                         Editor_findPossibleValuesForVariables();
                     }
                 }
@@ -1021,20 +1073,20 @@ public class CodeManager : MonoBehaviour
 
         if (editting_line_type == "IfLeftSide")
         {
-            lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ")";
             print(editting_variable_type);
             if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Comparison" });
             else Editor_setOptions(new string[] { "Comparison" });
         }
         if (editting_line_type == "IfRightSide")
         {
-            lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ")";
             if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Finish" });
             else Editor_setOptions(new string[] { "Finish" });
         }
         if (editting_line_type == "Print")
         {
-            lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ")";
             if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Finish" });
             else Editor_setOptions(new string[] { "Finish" });
         }
@@ -1044,12 +1096,12 @@ public class CodeManager : MonoBehaviour
             {
                 if (editting_line_type.Contains("For"))
                 {
-                    lines[editting_line + 1] = lines[editting_line + 1].Substring(0, lines[editting_line + 1].Length - 1) + selection + ")";
+                    lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ")";
                     Editor_setOptions(new string[] { "Comparison" });
                 }
                 else
                 {
-                    lines[editting_line + 1] += selection;
+                    lines[editting_line] += selection;
                     if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "Finish" });
                     else Editor_setOptions(new string[] { "Finish" });
                 }
@@ -1058,7 +1110,7 @@ public class CodeManager : MonoBehaviour
             if (editting_line_type == "ModifyVariable")
             {
                 editting_line_type = "Modify" + editting_variable_type;
-                lines[editting_line + 1] = selection;
+                lines[editting_line] = selection;
                 if (editting_variable_type == "Boolean") Editor_setOptions(new string[] { "=" });
                 else if (editting_variable_type == "String") Editor_setOptions(new string[] { "=", "+=" });
                 else Editor_setOptions(list_of_condensed_operations);
