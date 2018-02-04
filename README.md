@@ -1,6 +1,6 @@
 # Iterate
 
-[logo]: /sprites/Iterate_icon.png "Iterate's Icon"
+[logo]: Sprites/Iterate_icon.png "Iterate's Icon"
 
 ## App Description:
 
