@@ -1,7 +1,5 @@
 # Iterate
 
-![alt text](https://raw.githubusercontent.com/Mutilar/Iterate/master/Sprites/Iterate_icon.png "Logo Title Text 1")
-
 ## App Description:
 
 Iterate is an educational app that teaches programming, taking the practical knowledge of Java and combining it with the ease of use of Scratch. In essence, it takes the best from both worlds and combines it into one well-rounded package. Iterate streamlines past the grittiness of syntax in favor of a more visual, guided experience while still teaching advanced concepts.
@@ -20,3 +18,6 @@ In the end, Iterate aims to make computer science a more palatable, inviting exp
 ## Impact:
 
 Computer science isn’t for everyone. It takes a sort of masochist whose willing to stare at a computer screen for hours on end trying to find one little bug. But if we can bring people into the world of CSE and let them realize on their own how rewarding the experience can be, I think it will benefit everyone.
+
+![alt text](https://raw.githubusercontent.com/Mutilar/Iterate/master/Sprites/Iterate_icon.png "Logo Title Text 1")
+
