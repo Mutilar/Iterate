@@ -1,5 +1,7 @@
 # Iterate
 
+[logo]: /sprites/Iterate_icon.png "Iterate's Icon"
+
 ## App Description:
 
 Iterate is an educational app that teaches programming, taking the practical knowledge of Java and combining it with the ease of use of Scratch. In essence, it takes the best from both worlds and combines it into one well-rounded package. Iterate streamlines past the grittiness of syntax in favor of a more visual, guided experience while still teaching advanced concepts.
