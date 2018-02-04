@@ -1,6 +1,6 @@
 # Iterate
 
-[logo]: https://raw.githubusercontent.com/Mutilar/Iterate/master/Sprites/Iterate_icon.png "Iterate's Icon"
+![alt text](https://raw.githubusercontent.com/Mutilar/Iterate/master/Sprites/Iterate_icon.png "Logo Title Text 1")
 
 ## App Description:
 
