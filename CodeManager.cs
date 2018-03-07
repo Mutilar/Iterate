@@ -49,7 +49,6 @@ public class CodeManager : MonoBehaviour
 
     bool allowed_to_edit;
     bool editting_locked = true;
-    public GameObject UIElement_EdittingLocker;
     public GameObject UIElement_EdittingMenu;
     bool editting_mode;
     int editting_tabAmount;
@@ -59,7 +58,7 @@ public class CodeManager : MonoBehaviour
     bool tapping_over_same_line;
     bool entering_string_literal;
     bool entering_string;
-
+    int line_shift;
 
     bool just_editted = false;
 
@@ -100,12 +99,27 @@ public class CodeManager : MonoBehaviour
     /* All code that requires running per frame (animation calls, button presses */
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            line_shift++;
+
+            Display_Text.transform.position = new Vector2(0,42f * Display_Text.transform.localScale.y * line_shift);
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            line_shift--;
+
+            Display_Text.transform.position = new Vector2(0, 42f * Display_Text.transform.localScale.y * line_shift);
+        }
+
+
         Display_pushText();
         float text_height = 42f * Display_Text.transform.localScale.y;
         int current_line = (int)((Screen.height - Input.mousePosition.y) / text_height);
         float snap_to_line = current_line * text_height;
         float part_of_line = (Screen.height - Input.mousePosition.y) / text_height - Mathf.Round((Screen.height - Input.mousePosition.y) / text_height);
         just_editted = false;
+        current_line += line_shift;
         if (Input.GetMouseButtonDown(0) && editting_mode)
         {
             for (int i = 0; i < UIElement_EdittingMenu.transform.childCount; i++)
@@ -138,7 +152,7 @@ public class CodeManager : MonoBehaviour
             GameObject.Find("EdittingPointer").GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width / 2, 15);
             if (Input.GetMouseButtonDown(0))
             {
-                if (lines[current_line+1].Contains("{"))
+                if (current_line+1 < lines.Count && lines[current_line+1].Contains("{"))
                 {
                     GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 0, 0, 1f);
                 }
@@ -158,7 +172,7 @@ public class CodeManager : MonoBehaviour
             GameObject.Find("EdittingPointer").GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width / 2, 40);
             if (Input.GetMouseButtonDown(0))
             {
-                if (lines[current_line].Contains("void") || lines[current_line].Contains("{") || lines[current_line].Contains("}") || current_line < 3)
+                if (current_line < lines.Count && lines[current_line].Contains("void") || lines[current_line].Contains("{") || lines[current_line].Contains("}"))
                 {
                     GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 0, 0, 1f);
                 }
@@ -191,7 +205,7 @@ public class CodeManager : MonoBehaviour
             old_position = Input.mousePosition;
             not_over_UI = true;
             /*Editting Locker*/
-            if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_EdittingLocker.transform.position)) { not_over_UI = false; UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0)); Editor_toggleLock(); }
+            //if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_EdittingLocker.transform.position)) { not_over_UI = false; UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0)); Editor_toggleLock(); }
             /*Options Menu*/
             if (UI_clickCheck(0, 1000, 0, 200, old_position, UIElement_OptionsMenu.transform.position))           {                not_over_UI = false;                if (UI_clickCheck(0, 200, 0, 200, old_position, UIElement_OptionsMenu.transform.position))               {                    UI_setColor(UIElement_OptionsMenu, new Color(1, 0, 0));                    Display_OptionsMenu();                }        }
             /*
@@ -299,19 +313,19 @@ public class CodeManager : MonoBehaviour
                     int line = (int)((Screen.height - Input.mousePosition.y + Display_Text.GetComponent<RectTransform>().anchoredPosition.y) / text_height + 1);
                     if (line < lines.Count - 1)
                     {
-                        if (!editting_locked)
-                        {
-                            UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0));
-                        }
-                        else
-                        {
+                        //if (!editting_locked)
+                        //{
+                         //   UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0));
+                       // }
+                        //else
+                       // {
                             print(lines[line]);
                             if (lines[line - 1].IndexOf("for") == 0 || lines[line - 1].IndexOf("if") == 0 || lines[line - 1].IndexOf("while") == 0)
                             {
                                 line++;
                             }
                             //Editor_start(line);
-                        }
+                        //}
                     }
                 }
             }
@@ -323,17 +337,17 @@ public class CodeManager : MonoBehaviour
                     print(lines[line]);
                     if (lines[line].Contains("public class"))
                     {
-                        if (!editting_locked)
-                        {
-                            UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0));
+                        //if (!editting_locked)
+                        //{
+                         //   UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0));
                             //  Display_pushText(lines, new int[0]);
-                        }
-                        else
-                        {
+                        //}
+                        //else
+                       // {
                             //UIElement_EdittingMenu.SetActive(true);
                             Editor_setOptions(new string[] { "Enter the class's name:" });
                             editting_line_type = "SetClassName";
-                        }
+                        //}
                     }
                     int line_of_main_method = 0;
                     while (lines[line_of_main_method].Contains("public static void") == false)
@@ -342,13 +356,13 @@ public class CodeManager : MonoBehaviour
                     }
                     if (line > ++line_of_main_method && line < lines.Count - 1)
                     {
-                        if (!editting_locked)
-                        {
-                            UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0));
+                       // if (!editting_locked)
+                        //{
+                         //   UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0));
                             // Display_pushText(lines, new int[0]);
-                        }
-                        else
-                        {
+                        //}
+                        //else
+                        //{
                             if (lines[line].IndexOf("if") == 0 || lines[line].IndexOf("while") == 0 || lines[line].IndexOf("for") == 0)
                             {
                                 lines.RemoveAt(line);
@@ -375,7 +389,7 @@ public class CodeManager : MonoBehaviour
                             {
                                 lines.RemoveAt(line);
                             }
-                        }
+                        //}
                     }
 
                 }
@@ -404,7 +418,7 @@ public class CodeManager : MonoBehaviour
 
         UI_resetColor(UIElement_OptionsMenu, .025f);
         UI_resetColor(UIElement_OptionsMenu.transform.GetChild(0).gameObject, .025f);
-        UI_resetColor(UIElement_EdittingLocker, .025f);
+    //    UI_resetColor(UIElement_EdittingLocker, .025f);
         UI_resetColor(UIElement_EdittingMenu.transform.GetChild(3).gameObject, .025f);
         
     }
@@ -640,10 +654,26 @@ public class CodeManager : MonoBehaviour
             lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
             Editor_setOptions(new string[] {"INPUT", "OUTPUT" });
         }
+        if (editting_line_type == "Map3")
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
+            Editor_setOptions(new string[] { "Finish" });
+        }
+        else if (editting_line_type.Contains("Map"))
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
+            Editor_setOptions(new string[] { "Number" });
+        }
+
         if (editting_line_type.Contains("Digital Write"))
         {
             lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
             Editor_setOptions(new string[] { "HIGH", "LOW"});
+        }
+        if (editting_line_type.Contains("Delay"))
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
+            Editor_setOptions(new string[] { "Finish" });
         }
         if (editting_line_type.Contains("Digital Read"))
         {
@@ -786,6 +816,10 @@ public class CodeManager : MonoBehaviour
 
             case "New Line":
                 Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method" });
+                if (GameObject.Find("LabelDropdown").GetComponent<Text>().text == "Servos")
+                {
+                    Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method", "Servos" });
+                }
                 break;
             case "Delete Line":
                 lines.RemoveAt(editting_line);
@@ -795,7 +829,22 @@ public class CodeManager : MonoBehaviour
                 Editor_end();
                 break;
             case "Flow Control":
-                if (editting_line_type == "") { Editor_setOptions(new string[] { "If", "Else", "While", "For" }); editting_line_type = selection; }
+                if (editting_line_type == "") { Editor_setOptions(new string[] { "Delay","If", "Else", "While", "For" }); editting_line_type = selection; }
+                break;
+            case "Servos":
+                Editor_setOptions(new string[] { "Map" ,"servo1", "servo2" });
+                break;
+            case "Map":
+                editting_line_type = selection;
+                lines[editting_line] = "map()";
+                string[] answersMap = new string[integers_within_editting_scope.Count + 1];
+                answersMap[0] = "Number";
+                for (int i = 0; i < integers_within_editting_scope.Count; i++)
+                {
+                    answersMap[i + 1] = integers_within_editting_scope[i];
+                }
+                Editor_setOptions(answersMap);
+
                 break;
             case "Method":
                 if (editting_line_type == "")
@@ -851,6 +900,13 @@ public class CodeManager : MonoBehaviour
                 lines[editting_line] = selection;
                 Editor_setOptions(new string[] { "Begin", "Print", "Print Line" });
                 break;
+            case "Delay":
+                
+                    editting_line_type = selection;
+                lines[editting_line] = "delay()";
+                Editor_setOptions(new string[] { "Number" });
+                
+                break;
             case "Digital Read":
                 if (editting_line_type == "")
                 {
@@ -859,7 +915,7 @@ public class CodeManager : MonoBehaviour
                 }
                 else if (editting_line_type == "If")
                 {
-                    editting_line_type = "If Digital"
+                    editting_line_type = "If Digital";
                     Editor_setOptions(new string[] { "Number" });
                 }
                 break;
@@ -1182,10 +1238,16 @@ public class CodeManager : MonoBehaviour
     }
     public void Editor_usedAVariable(string selection)
     {
+        if (editting_line_type == "Map")
+        {
+            editting_line_type = "Map1";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ", )";
+            Editor_setOptions(new string[] { "Number" });
+        }
         if (editting_line_type == "Pin Mode")
         {
             lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ", )";
-            Editor_setOptions(new string[] { "HIGH", "LOW", "INPUT", "OUTPUT" });
+            Editor_setOptions(new string[] {"INPUT", "OUTPUT" });
         }
         if (editting_line_type == "IfLeftSide")
         {
@@ -1253,7 +1315,7 @@ public class CodeManager : MonoBehaviour
     public void Editor_toggleLock()
     {
         editting_locked = !editting_locked;
-        UIElement_EdittingLocker.GetComponent<Image>().sprite = (Resources.Load("Sprites/editting" + editting_locked) as GameObject).GetComponent<SpriteRenderer>().sprite;
+      //  UIElement_EdittingLocker.GetComponent<Image>().sprite = (Resources.Load("Sprites/editting" + editting_locked) as GameObject).GetComponent<SpriteRenderer>().sprite;
     }
 
 
@@ -1278,8 +1340,8 @@ public class CodeManager : MonoBehaviour
     public void Display_LoadScript(string name)
     {
         //Name of class prompt
-        Editor_setOptions(new string[] { "Enter the class's name:" });
-        editting_line_type = "SetClassName";
+      //  Editor_setOptions(new string[] { "Enter the class's name:" });
+      //  editting_line_type = "SetClassName";
         //Pull data from resources folder (blank document syntax)
       
         if (name == "") name = GameObject.Find("LabelDropdown").GetComponent<Text>().text;

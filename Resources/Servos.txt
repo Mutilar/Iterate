@@ -1,0 +1,16 @@
+#include <Servo.h>
+
+int servoVal;
+
+Servo servo1;
+Servo servo2;
+
+void setup() 
+{
+
+}
+
+void loop() 
+{
+
+}
