@@ -1,6 +1,6 @@
 #include <Servo.h>
 
-int servoVal;
+int servoVal = 0;
 
 Servo servo1;
 Servo servo2;

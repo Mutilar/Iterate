@@ -8,7 +8,9 @@ using UnityEngine.SceneManagement;
 
 public class CodeManager : MonoBehaviour
 {
-    
+    GameObject copier;
+    string name;
+
     /*** TODO:::     
         when deleting: give option to edit: precoded other options
         Curr:
@@ -91,6 +93,8 @@ public class CodeManager : MonoBehaviour
     /* Initializing code (C++ified) */
     void Start()
     {
+        copier = GameObject.Find("CopyField");
+        copier.SetActive(false);
         /* Load blank C++ Arduino document */
         lines = new List<string>();
         Display_LoadScript("NewClass");
@@ -147,10 +151,23 @@ public class CodeManager : MonoBehaviour
             GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 1, 1, 0f);
 
         }
+        if (Input.GetMouseButtonDown(0))
+        {
+            old_position = Input.mousePosition;
+            not_over_UI = true;
+            if (UI_optionsMenuOpen) not_over_UI = false;
+            /*Editting Locker*/
+            //if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_EdittingLocker.transform.position)) { not_over_UI = false; UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0)); Editor_toggleLock(); }
+            /*Options Menu*/
+            if (UI_clickCheck(0, 1000, 0, 200, old_position, UIElement_OptionsMenu.transform.position))
+            { not_over_UI = false; if (UI_clickCheck(0, 200, 0, 200, old_position, UIElement_OptionsMenu.transform.position)) { UI_setColor(UIElement_OptionsMenu, new Color(1, 0, 0)); Display_OptionsMenu(); } }
+
+            tapping_over_same_line = true;
+        }
         if ((part_of_line) > -.35f && (part_of_line) < 0)
         {
             GameObject.Find("EdittingPointer").GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width / 2, 15);
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && current_line < lines.Count && not_over_UI)
             {
                 if (current_line+1 < lines.Count && lines[current_line+1].Contains("{"))
                 {
@@ -170,19 +187,15 @@ public class CodeManager : MonoBehaviour
         else
         {
             GameObject.Find("EdittingPointer").GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width / 2, 40);
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (current_line < lines.Count && lines[current_line].Contains("void") || lines[current_line].Contains("{") || lines[current_line].Contains("}"))
+            if (Input.GetMouseButtonDown(0) && current_line < lines.Count && not_over_UI && !UIElement_EdittingMenu.activeInHierarchy && !UIElement_InputField.activeInHierarchy)
+            { 
+                if ((lines[current_line].Contains("void") || lines[current_line].Contains("{") || lines[current_line].Contains("}")))
                 {
                     GameObject.Find("EdittingPointer").GetComponent<Image>().color = new Color(1, 0, 0, 1f);
                 }
-                else if (!UIElement_EdittingMenu.activeInHierarchy && !UIElement_InputField.activeInHierarchy)
+                else 
                 {
                    if (!just_editted) Editor_start(current_line);
-                }
-                else
-                {
-
                 }
             }
 
@@ -200,109 +213,7 @@ public class CodeManager : MonoBehaviour
         //font size 50 = 41.75 pixels  !!!!
         //!!
         
-        if (Input.GetMouseButtonDown(0))
-        {
-            old_position = Input.mousePosition;
-            not_over_UI = true;
-            /*Editting Locker*/
-            //if (UI_clickCheck(0, 200, -200, 0, old_position, UIElement_EdittingLocker.transform.position)) { not_over_UI = false; UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0)); Editor_toggleLock(); }
-            /*Options Menu*/
-            if (UI_clickCheck(0, 1000, 0, 200, old_position, UIElement_OptionsMenu.transform.position))           {                not_over_UI = false;                if (UI_clickCheck(0, 200, 0, 200, old_position, UIElement_OptionsMenu.transform.position))               {                    UI_setColor(UIElement_OptionsMenu, new Color(1, 0, 0));                    Display_OptionsMenu();                }        }
-            /*
-            if (editting_mode)
-            {
-                for (int i = 0; i < UIElement_EdittingMenu.transform.childCount; i++)
-                {
-                    if (UIElement_EdittingMenu.transform.GetChild(i).gameObject.activeSelf)
-                    {
-                      //  print(UIElement_EdittingMenu.transform.GetChild(i).GetChild(0).gameObject.GetComponent<Text>().text);
-                        if (UI_clickCheck(-562.5f, 0f, -50f, 50f, old_position, UIElement_EdittingMenu.transform.GetChild(i).transform.position))
-                        {
-                            not_over_UI = false;
-                            Editor_selectOption(UIElement_EdittingMenu.transform.GetChild(i).GetChild(0).gameObject.GetComponent<Text>().text);
-                            //Display_pushText(lines, new int[0]);
-                            //resize main thingy
-                            break;
-                        }
-                    }
-                }
-            }*/
-            tapping_over_same_line = true;
-        }
-
-        /*if (Input.GetMouseButton(0))
-        {
-            if (tapping_over_same_line == true && allowed_to_edit && not_over_UI && !editting_mode && !UI_optionsMenuOpen)
-            {
-                int line = (int)((Screen.height - Input.mousePosition.y + Display_Text.GetComponent<RectTransform>().anchoredPosition.y) / text_height);
-
-                int old_pos = (int)((Screen.height - old_position.y) / text_height + 1);
-                int new_pos = (int)((Screen.height - Input.mousePosition.y) / text_height + 1);
-                if (old_pos != new_pos)
-                {
-                    tapping_over_same_line = false;
-                }
-                if (tap_duration > .25f)
-                {
-                    int line_of_main_method = 0;
-                    while (lines[line_of_main_method].Contains("public static void") == false)
-                    {
-                        line_of_main_method++;
-                    }
-                    if (line > ++line_of_main_method && line < lines.Count - 1)
-                    {
-                        if (lines[line].Contains("}") == false && lines[line].Contains("{") == false)
-                        {
-
-                            // if (!compiling) Display_pushText(lines, new int[1] { line });
-                        }
-                        if (lines[line].IndexOf("if") == 0 || lines[line].IndexOf("while") == 0 || lines[line].IndexOf("for") == 0)
-                        {
-                            int matching_bracket = -1;
-                            int line_of_bracket = 0;
-                            for (int i = line; i < lines.Count; i++)
-                            {
-                                if (lines[i].IndexOf("{") == 0) matching_bracket++;
-                                if (lines[i].IndexOf("}") == 0)
-                                {
-                                    if (matching_bracket == 0)
-                                    {
-                                        line_of_bracket = i;
-                                        break;
-                                    }
-                                    matching_bracket--;
-                                }
-                            }
-                            //Display_pushText(lines, new int[3] { line, line+1, line_of_bracket});
-                        }
-                    }
-                    else
-                    {
-                        if (lines[line].Contains("public class"))
-                        {
-                            //Display_pushText(lines, new int[1] { line });
-                        }
-                    }
-                }
-            }
-            else
-            {
-                //  Display_pushText(lines, new int[1] { current_line });//
-                // if (!compiling)  Display_pushText(lines, new int[0]); ////////
-            }
-            tap_duration += Time.deltaTime;
-            Vector2 input_position = Input.mousePosition;
-         /*   if (!editting_mode && not_over_UI)
-            {
-                UI_moveRectTransform(Display_Text.gameObject, input_position.x - old_position.x, input_position.y - old_position.y);
-                /* Keeping scrolling within bounds 
-                if (Display_Text.GetComponent<RectTransform>().anchoredPosition.x > 0) UI_setRectTransform(Display_Text, 0, Display_Text.GetComponent<RectTransform>().anchoredPosition.y);
-                if (Display_Text.GetComponent<RectTransform>().anchoredPosition.y > text_height * lines.Count - 1080) UI_setRectTransform(Display_Text.gameObject, Display_Text.GetComponent<RectTransform>().anchoredPosition.x, text_height * lines.Count - 1080);
-                if (Display_Text.GetComponent<RectTransform>().anchoredPosition.y < 0) UI_setRectTransform(Display_Text, Display_Text.GetComponent<RectTransform>().anchoredPosition.x, 0);
-            }
-        
-            old_position = input_position;
-        }*/
+       
         if (false && Input.GetMouseButtonUp(0))
         {
             if (tap_duration < .25f && tapping_over_same_line)
@@ -313,19 +224,11 @@ public class CodeManager : MonoBehaviour
                     int line = (int)((Screen.height - Input.mousePosition.y + Display_Text.GetComponent<RectTransform>().anchoredPosition.y) / text_height + 1);
                     if (line < lines.Count - 1)
                     {
-                        //if (!editting_locked)
-                        //{
-                         //   UI_setColor(UIElement_EdittingLocker, new Color(1, 0, 0));
-                       // }
-                        //else
-                       // {
                             print(lines[line]);
                             if (lines[line - 1].IndexOf("for") == 0 || lines[line - 1].IndexOf("if") == 0 || lines[line - 1].IndexOf("while") == 0)
                             {
                                 line++;
                             }
-                            //Editor_start(line);
-                        //}
                     }
                 }
             }
@@ -418,7 +321,14 @@ public class CodeManager : MonoBehaviour
 
         UI_resetColor(UIElement_OptionsMenu, .025f);
         UI_resetColor(UIElement_OptionsMenu.transform.GetChild(0).gameObject, .025f);
-    //    UI_resetColor(UIElement_EdittingLocker, .025f);
+        //    UI_resetColor(UIElement_EdittingLocker, .025f);
+
+        UI_resetColor(UIElement_EdittingMenu.transform.GetChild(0).gameObject, .025f);
+
+        UI_resetColor(UIElement_EdittingMenu.transform.GetChild(1).gameObject, .025f);
+
+        UI_resetColor(UIElement_EdittingMenu.transform.GetChild(2).gameObject, .025f);
+
         UI_resetColor(UIElement_EdittingMenu.transform.GetChild(3).gameObject, .025f);
         
     }
@@ -649,18 +559,30 @@ public class CodeManager : MonoBehaviour
             Display_pushText();
 
         }
+        if (editting_line_type.Contains("Write") && !editting_line_type.Contains("Analog Write") && !editting_line_type.Contains("Digital Write")) 
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
+            Editor_setOptions(new string[] { "Finish" });
+        }
+        if (editting_line_type.Contains("Attach"))
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
+            Editor_setOptions(new string[] { "Finish" });
+        }
         if (editting_line_type.Contains("Pin Mode"))
         {
             lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
             Editor_setOptions(new string[] {"INPUT", "OUTPUT" });
         }
-        if (editting_line_type == "Map3")
+        if (editting_line_type.Contains( "Map") && editting_line_type.Length > 6)
         {
-            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
+            editting_line_type += "p";
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
             Editor_setOptions(new string[] { "Finish" });
         }
         else if (editting_line_type.Contains("Map"))
         {
+            editting_line_type += "p";
             lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
             Editor_setOptions(new string[] { "Number" });
         }
@@ -680,11 +602,24 @@ public class CodeManager : MonoBehaviour
             lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
             Editor_setOptions(new string[] { "Finish" });
         }
-        if (editting_line_type.Contains("Analog Write"))
+        if (editting_line_type == "Analog Write")
         {
-            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
-            Editor_setOptions(new string[] { "Number" });
+            editting_line_type = "Analog Write 2";
+               lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ", )";
+            string[] answersAWri = new string[integers_within_editting_scope.Count + 1];
+            answersAWri[0] = "Number";
+            for (int i = 0; i < integers_within_editting_scope.Count; i++)
+            {
+                answersAWri[i + 1] = integers_within_editting_scope[i];
+            }
+            Editor_setOptions(answersAWri);
         }
+        else if (editting_line_type == "Analog Write 2")
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
+            Editor_setOptions(new string[] { "Finish" });
+        }
+
         if (editting_line_type.Contains("Analog Read"))
         {
             lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + input + ")";
@@ -816,7 +751,7 @@ public class CodeManager : MonoBehaviour
 
             case "New Line":
                 Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method" });
-                if (GameObject.Find("LabelDropdown").GetComponent<Text>().text == "Servos")
+                if (name == "Servos")
                 {
                     Editor_setOptions(new string[] { "Create Variable", "Modify Variable", "Flow Control", "Method", "Servos" });
                 }
@@ -829,14 +764,40 @@ public class CodeManager : MonoBehaviour
                 Editor_end();
                 break;
             case "Flow Control":
-                if (editting_line_type == "") { Editor_setOptions(new string[] { "Delay","If", "Else", "While", "For" }); editting_line_type = selection; }
+                if (editting_line_type == "") { Editor_setOptions(new string[] { "Delay","If"/*, "Else", "While", "For"*/ }); editting_line_type = selection; }
                 break;
             case "Servos":
                 Editor_setOptions(new string[] { "Map" ,"servo1", "servo2" });
                 break;
+            case "servo1":
+                editting_line_type = selection;
+                lines[editting_line] = "servo1";
+                Editor_setOptions(new string[] { "Attach", "Write" });
+                break;
+            case "servo2":
+                editting_line_type = selection;
+                lines[editting_line] = "servo2";
+                Editor_setOptions(new string[] { "Attach", "Write" });
+                break;
+            case "Attach":
+                editting_line_type = selection;
+                lines[editting_line] += ".attach()";
+                Editor_setOptions(new string[] { "Number" });
+                break;
+            case "Write":
+                editting_line_type = selection;
+                lines[editting_line] += ".write()";
+                string[] answersWri = new string[integers_within_editting_scope.Count + 1];
+                answersWri[0] = "Number";
+                for (int i = 0; i < integers_within_editting_scope.Count; i++)
+                {
+                    answersWri[i + 1] = integers_within_editting_scope[i];
+                }
+                Editor_setOptions(answersWri);
+                break;
             case "Map":
                 editting_line_type = selection;
-                lines[editting_line] = "map()";
+                lines[editting_line] += "map()";
                 string[] answersMap = new string[integers_within_editting_scope.Count + 1];
                 answersMap[0] = "Number";
                 for (int i = 0; i < integers_within_editting_scope.Count; i++)
@@ -851,7 +812,7 @@ public class CodeManager : MonoBehaviour
                 {
                     //voids
                     editting_line_type = selection; lines[editting_line] = selection;
-                    Editor_setOptions(new string[] { "Serial", "Pin Mode", "Digital Read", "Digitial Write", "Analog Read", "Analog Write" });
+                    Editor_setOptions(new string[] { "Serial", "Pin Mode", "Digital Write", "Analog Write" });
                 }
                 else
                 {
@@ -861,6 +822,11 @@ public class CodeManager : MonoBehaviour
                     }
                     //numbers (iterate == temperature probe)
                     //Editor_setOptions(new string[] { "Math", "Iterate", });
+                }
+                if (editting_line_type.Contains("ModifyInteger"))
+                {
+                    editting_line_type = selection;
+                    Editor_setOptions(new string[] { "Digital Read", "Analog Read", "Map"});
                 }
                 break;
             case "Create Variable":
@@ -882,7 +848,7 @@ public class CodeManager : MonoBehaviour
 
             case "Variable":
                 if (editting_line_type == "") { Editor_setOptions(available_variable_types); editting_line_type = "ModifyVariable"; }
-                if (editting_line_type == "Keyword") { Editor_setOptions(new string[] { "Integer", "Double", "Boolean", "String" }); editting_line_type = "CreateVariable"; }
+                if (editting_line_type == "Keyword") { Editor_setOptions(new string[] { "Integer", "Boolean" }); editting_line_type = "CreateVariable"; }
                 if (editting_line_type == "If") { Editor_setOptions(available_variable_types); editting_line_type = "IfLeftSide"; }
                 if (editting_line_type == "IfLeftSide") { Editor_setOptions(available_variable_types); editting_line_type = "IfLeftSide"; }
                 if (editting_line_type == "IfRightSide") { Editor_setOptions(available_variable_types); editting_line_type = "IfRightSide"; }
@@ -908,6 +874,7 @@ public class CodeManager : MonoBehaviour
                 
                 break;
             case "Digital Read":
+                lines[editting_line] += "digitalRead()";
                 if (editting_line_type == "")
                 {
                     editting_line_type = selection;
@@ -917,6 +884,10 @@ public class CodeManager : MonoBehaviour
                 {
                     editting_line_type = "If Digital";
                     Editor_setOptions(new string[] { "Number" });
+                }
+                else
+                {
+
                 }
                 break;
             case "Digital Write":
@@ -932,7 +903,7 @@ public class CodeManager : MonoBehaviour
                 break;
             case "Analog Read":
                 editting_line_type = selection;
-                lines[editting_line] = "analogRead()";
+                lines[editting_line] += "analogRead()";
                 string[] answersAR = new string[integers_within_editting_scope.Count + 1];
                 answersAR[0] = "Number";
                 for (int i = 0; i < integers_within_editting_scope.Count; i++)
@@ -1199,16 +1170,17 @@ public class CodeManager : MonoBehaviour
         {
             if (integers_within_editting_scope.Count != 0)
             {
-                options = new string[integers_within_editting_scope.Count + 1];
+                options = new string[integers_within_editting_scope.Count + 2];
                 options[0] = "Number";
+                options[1] = "Method";
                 //options[1] = "Method";
                 for (int j = 0; j < integers_within_editting_scope.Count; j++)
                 {
-                    options[j + 1] = integers_within_editting_scope[j];
+                    options[j + 2] = integers_within_editting_scope[j];
                 }
                 Editor_setOptions(options);
             }
-            else Editor_setOptions(new string[] { "Number" });
+            else Editor_setOptions(new string[] { "Number", "Method" });
         }
         if (editting_line_type.Contains("ModifyDouble"))
         {
@@ -1238,6 +1210,17 @@ public class CodeManager : MonoBehaviour
     }
     public void Editor_usedAVariable(string selection)
     {
+        if (editting_line_type == "Analog Write 2")
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ")";
+            Editor_setOptions(new string[] { "Finish" });
+        }
+
+        else if (editting_line_type == "Write")
+        {
+            lines[editting_line] = lines[editting_line].Substring(0, lines[editting_line].Length - 1) + selection + ")";
+            Editor_setOptions(new string[] { "Finish" });
+        }
         if (editting_line_type == "Map")
         {
             editting_line_type = "Map1";
@@ -1333,6 +1316,17 @@ public class CodeManager : MonoBehaviour
     }
 
     /* Display UI (C++ified)*/
+    public void Display_ToCopyableText()
+    {
+        string output = "";
+        for (int i = 0; i < lines.Count; i++)
+        { 
+            output += lines[i] + "\n";
+        }
+
+        copier.SetActive(!copier.activeSelf);
+        copier.GetComponent<InputField>().text = output;
+    }
     public void Display_OptionsMenu()
     {
         UI_optionsMenuOpen = !UI_optionsMenuOpen;
@@ -1346,6 +1340,7 @@ public class CodeManager : MonoBehaviour
       
         if (name == "") name = GameObject.Find("LabelDropdown").GetComponent<Text>().text;
         if (name == "") name = "NewClass";
+        this.name = name;
         TextAsset textFile = Resources.Load(name) as TextAsset;
         //Populating inline variables
         string[] lines = textFile.text.Split('\n');
